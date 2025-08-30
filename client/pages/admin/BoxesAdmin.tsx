@@ -157,6 +157,99 @@ function GridEditor() {
   );
 }
 
+function BoxEditorTrigger({ boxId, index }: { boxId: string; index: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <AdminButton size="small" variant="secondary" onClick={() => setOpen(true)}>Edit</AdminButton>
+      {open && <BoxEditorSheet boxId={boxId} onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
+function BoxEditorSheet({ boxId, onClose }: { boxId: string; onClose: () => void }) {
+  const { state, set } = useSiteConfig();
+  const live = state.boxes.find((b) => b.id === boxId)!;
+  const [draft, setDraft] = useState({ ...live });
+  const setField = (patch: any) => setDraft((d: any) => ({ ...d, ...patch }));
+
+  const apply = () => {
+    set({ boxes: state.boxes.map((b) => (b.id === boxId ? draft : b)) });
+    onClose();
+  };
+
+  return (
+    <Sheet open onOpenChange={(o) => !o && onClose()}>
+      <SheetContent side="right" className="sm:max-w-lg">
+        <SheetHeader>
+          <SheetTitle>Edit Box</SheetTitle>
+        </SheetHeader>
+        <div className="mt-4 space-y-4">
+          <AdminFormGroup label="Title">
+            <div className="flex items-center gap-2">
+              <AdminInput value={draft.title} onChange={(e) => setField({ title: e.target.value })} />
+              <EmojiPicker onEmojiClick={(e: EmojiClickData) => setField({ title: (draft.title || "") + e.emoji })} width={280} height={380} lazyLoadEmojis skinTonesDisabled categories={["suggested"] as any} />
+            </div>
+          </AdminFormGroup>
+          <AdminFormGroup label="Alt / Subtitle">
+            <AdminInput value={draft.alt || ""} onChange={(e) => setField({ alt: e.target.value })} />
+          </AdminFormGroup>
+          <AdminFormGroup label="Description">
+            <RichTextEditor value={draft.description || ""} onChange={(html) => setField({ description: html })} />
+          </AdminFormGroup>
+          <div className="grid grid-cols-2 gap-3">
+            <AdminFormGroup label="Height (px)">
+              <AdminInput type="number" value={draft.height || 200} onChange={(e) => setField({ height: Number(e.target.value) })} />
+            </AdminFormGroup>
+            <AdminFormGroup label="Border Radius">
+              <AdminInput type="number" value={draft.borderRadius ?? 12} onChange={(e) => setField({ borderRadius: Number(e.target.value) })} />
+            </AdminFormGroup>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <AdminFormGroup label="CTA Mode">
+              <AdminSelect value={draft.ctaMode || "button"} onChange={(e) => setField({ ctaMode: e.target.value })}>
+                <option value="button">Button</option>
+                <option value="icon">Icon</option>
+                <option value="both">Both</option>
+              </AdminSelect>
+            </AdminFormGroup>
+            <AdminFormGroup label="Button Label">
+              <AdminInput value={draft.buttonLabel || "Read More"} onChange={(e) => setField({ buttonLabel: e.target.value })} />
+            </AdminFormGroup>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {(["mobile","tablet","desktop"] as const).map((bp) => (
+              <AdminFormGroup key={bp} label={`Span ${bp}`}>
+                <AdminInput type="number" min={1} max={12} value={(draft.gridSpan as any)?.[bp] ?? 1} onChange={(e) => setField({ gridSpan: { ...(draft.gridSpan || { mobile:1, tablet:1, desktop:1 }), [bp]: Number(e.target.value) } })} />
+              </AdminFormGroup>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <AdminFormGroup label="Align H">
+              <AdminSelect value={draft.alignH || "left"} onChange={(e) => setField({ alignH: e.target.value })}>
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </AdminSelect>
+            </AdminFormGroup>
+            <AdminFormGroup label="Align V">
+              <AdminSelect value={draft.alignV || "top"} onChange={(e) => setField({ alignV: e.target.value })}>
+                <option value="top">Top</option>
+                <option value="center">Center</option>
+                <option value="bottom">Bottom</option>
+              </AdminSelect>
+            </AdminFormGroup>
+          </div>
+          <div className="flex justify-end gap-2">
+            <AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton>
+            <AdminButton onClick={apply}>Apply</AdminButton>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 export default function BoxesAdmin() {
   const { state, set } = useSiteConfig();
   const [dragIdx, setDragIdx] = useState<number | null>(null);
