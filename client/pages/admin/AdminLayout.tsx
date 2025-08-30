@@ -164,7 +164,7 @@ export default function AdminLayout() {
         fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-200 shadow-sm
         transform transition-transform duration-300 ease-in-out lg:translate-x-0
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:static lg:inset-auto lg:z-auto lg:shadow-none
+        lg:sticky lg:top-0 lg:self-start lg:h-screen lg:z-auto lg:shadow-none
       `}
       >
         <div className="flex flex-col h-full">
