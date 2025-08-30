@@ -122,6 +122,77 @@ export default function BoxesAdmin() {
         }
       />
 
+      {/* Grid Settings */}
+      <AdminSection title="Grid Settings" description="Control columns, gaps, column widths and background stripes.">
+        <div className="grid sm:grid-cols-3 gap-4">
+          {(["mobile","tablet","desktop"] as const).map((bp) => (
+            <div key={bp} className="space-y-2">
+              <label className="text-sm capitalize">{bp} Columns</label>
+              <input
+                type="number"
+                min={1}
+                max={12}
+                value={(state.boxesGrid?.columns as any)?.[bp] ?? (bp === 'desktop' ? 4 : bp === 'tablet' ? 2 : 1)}
+                onChange={(e) =>
+                  set({ boxesGrid: { ...(state.boxesGrid || {}), columns: { ...(state.boxesGrid?.columns || { mobile:1, tablet:2, desktop:4 }), [bp]: Number(e.target.value) } } })
+                }
+                className="w-full border rounded px-2 py-1 text-sm"
+              />
+            </div>
+          ))}
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4 mt-4">
+          {(["mobile","tablet","desktop"] as const).map((bp) => (
+            <div key={bp} className="space-y-2">
+              <label className="text-sm capitalize">{bp} Column Width (px)</label>
+              <input
+                type="number"
+                min={0}
+                value={(state.boxesGrid?.columnWidth as any)?.[bp] ?? 0}
+                onChange={(e) =>
+                  set({ boxesGrid: { ...(state.boxesGrid || {}), columnWidth: { ...(state.boxesGrid?.columnWidth || { mobile:0, tablet:0, desktop:0 }), [bp]: Number(e.target.value) } } })
+                }
+                className="w-full border rounded px-2 py-1 text-sm"
+              />
+            </div>
+          ))}
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4 mt-4">
+          {(["mobile","tablet","desktop"] as const).map((bp) => (
+            <div key={bp} className="space-y-2">
+              <label className="text-sm capitalize">{bp} Gap (px)</label>
+              <input
+                type="number"
+                min={0}
+                value={(state.boxesGrid?.gap as any)?.[bp] ?? (bp === 'desktop' ? 24 : bp === 'tablet' ? 20 : 16)}
+                onChange={(e) =>
+                  set({ boxesGrid: { ...(state.boxesGrid || {}), gap: { ...(state.boxesGrid?.gap || { mobile:16, tablet:20, desktop:24 }), [bp]: Number(e.target.value) } } })
+                }
+                className="w-full border rounded px-2 py-1 text-sm"
+              />
+            </div>
+          ))}
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4 mt-4">
+          <div className="flex items-center gap-3">
+            <label className="text-sm w-40">Column Stripe Color</label>
+            <input
+              type="color"
+              value={state.boxesGrid?.columnColor || "#e0f2fe"}
+              onChange={(e) => set({ boxesGrid: { ...(state.boxesGrid || {}), columnColor: e.target.value } })}
+            />
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={!!state.boxesGrid?.showColumnColor}
+              onChange={(e) => set({ boxesGrid: { ...(state.boxesGrid || {}), showColumnColor: e.target.checked } })}
+            />
+            Show Column Background
+          </label>
+        </div>
+      </AdminSection>
+
       <div className="space-y-6">
         {items.map(({ live, draft }, i) => (
           <AdminCard
