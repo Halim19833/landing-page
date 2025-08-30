@@ -74,9 +74,7 @@ const router = createBrowserRouter([
     ],
   },
   { path: "*", element: <NotFound /> },
-], {
-  future: { v7_startTransition: true, v7_relativeSplatPath: true },
-});
+]);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -89,7 +87,7 @@ const App = () => (
             <div className="min-h-screen flex flex-col" id="app-root-bg">
               <SiteHeader />
               <main className="flex-1">
-                <RouterProvider router={router} future={{ v7_startTransition: true, v7_relativeSplatPath: true }} />
+                <RouterProvider router={router} />
               </main>
               <SiteFooter />
             </div>
