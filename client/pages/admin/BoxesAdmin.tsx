@@ -193,6 +193,14 @@ export default function BoxesAdmin() {
         </div>
       </AdminSection>
 
+      {/* Live Grid Editor */}
+      <AdminSection title="Grid Editor" description="Drag, drop, and resize boxes. Changes save instantly.">
+        <GridEditor />
+        <div className="flex items-center justify-end gap-2 mt-4">
+          <ExportImportControls />
+        </div>
+      </AdminSection>
+
       <div className="space-y-6">
         {items.map(({ live, draft }, i) => (
           <AdminCard
