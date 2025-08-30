@@ -43,6 +43,9 @@ export type BoxShadow = {
   direction: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 };
 
+export type BoxLayoutItem = { x: number; y: number; w: number; h: number };
+export type BoxLayout = { mobile: BoxLayoutItem; tablet: BoxLayoutItem; desktop: BoxLayoutItem };
+
 export type Box = {
   id: string;
   title: string;
@@ -63,6 +66,7 @@ export type Box = {
   gridSpan?: { mobile: number; tablet: number; desktop: number };
   alignH?: "left" | "center" | "right";
   alignV?: "top" | "center" | "bottom";
+  layout?: BoxLayout;
 };
 export type Logo = { id: string; url: string; href?: string; hidden?: boolean };
 
