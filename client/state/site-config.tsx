@@ -54,6 +54,8 @@ export type Box = {
   description?: string; // rich text html
   buttonLabel?: string;
   ctaMode?: "button" | "icon" | "both";
+  showButton?: boolean;
+  buttonColor?: string;
   modalEnabled?: boolean;
   modalStyle?: { bg?: string; text?: string; shadow?: string; radius?: number };
   imageUrl?: string;
@@ -258,6 +260,8 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
     return {
       ...b,
       ctaMode: b.ctaMode || "button",
+      showButton: b.showButton !== false,
+      buttonColor: expandShortHex(b.buttonColor) || b.buttonColor,
       borderRadius: typeof b.borderRadius === "number" ? b.borderRadius : 12,
       shadow: b.shadow || { intensity: 12, direction: "bottom-right" },
       background,
