@@ -196,10 +196,10 @@ export default function Boxes() {
       >
         <style>{`
           @media (min-width: 640px){
-            .boxes-grid{ grid-template-columns: ${gridTemplate(cols.tablet, cwidth.tablet)}; gap: ${gap.tablet}px; }
+            .boxes-grid{ grid-template-columns: ${gridTemplate(cols.tablet, cwidth.tablet)}; gap: ${gap.tablet}px; ${showCols ? `background-image: repeating-linear-gradient(90deg, ${colColor}, ${colColor} 1px, transparent 1px, transparent calc(100% / ${cols.tablet}));` : ''} }
           }
           @media (min-width: 1024px){
-            .boxes-grid{ grid-template-columns: ${gridTemplate(cols.desktop, cwidth.desktop)}; gap: ${gap.desktop}px; }
+            .boxes-grid{ grid-template-columns: ${gridTemplate(cols.desktop, cwidth.desktop)}; gap: ${gap.desktop}px; ${showCols ? `background-image: repeating-linear-gradient(90deg, ${colColor}, ${colColor} 1px, transparent 1px, transparent calc(100% / ${cols.desktop}));` : ''} }
           }
         `}</style>
         {visible.map((b) => {
