@@ -54,13 +54,15 @@ export type Box = {
   modalEnabled?: boolean;
   modalStyle?: { bg?: string; text?: string; shadow?: string; radius?: number };
   imageUrl?: string;
-  align?: "left" | "center" | "right";
   size?: "small" | "medium" | "large";
   height?: number; // px
   borderRadius?: number; // px
   shadow?: BoxShadow;
   background?: BoxBackground;
   hidden?: boolean;
+  gridSpan?: { mobile: number; tablet: number; desktop: number };
+  alignH?: "left" | "center" | "right";
+  alignV?: "top" | "center" | "bottom";
 };
 export type Logo = { id: string; url: string; href?: string; hidden?: boolean };
 
