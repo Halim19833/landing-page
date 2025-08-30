@@ -144,7 +144,14 @@ function Box({ id }: BoxProps) {
 
 export default function Boxes() {
   const { state } = useSiteConfig();
-  const visible = state.boxes.filter((b) => !b.hidden);
+  const visible = state.boxes
+    .filter((b) => !b.hidden)
+    .slice()
+    .sort((a, b) => {
+      const la = (a.layout as any)?.[bp] || { y: 0, x: 0 };
+      const lb = (b.layout as any)?.[bp] || { y: 0, x: 0 };
+      return la.y - lb.y || la.x - lb.x;
+    });
   const pad = state.settings?.sectionPadding?.boxes ?? 24;
 
   const cols = state.boxesGrid?.columns || { mobile: 1, tablet: 2, desktop: 4 };
