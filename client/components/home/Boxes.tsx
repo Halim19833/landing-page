@@ -167,6 +167,16 @@ export default function Boxes() {
     alignSelf: v === "center" ? "center" : v === "bottom" ? "end" : "start",
   });
 
+  const [bp, setBp] = React.useState<'mobile'|'tablet'|'desktop'>(() => (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'desktop' : (typeof window !== 'undefined' && window.innerWidth >= 640 ? 'tablet' : 'mobile')));
+  React.useEffect(() => {
+    const onResize = () => {
+      const w = window.innerWidth;
+      setBp(w >= 1024 ? 'desktop' : w >= 640 ? 'tablet' : 'mobile');
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   return (
     <section
       className="mx-auto max-w-[1200px] px-4 sm:px-6 mt-8 sm:mt-10"
@@ -193,16 +203,13 @@ export default function Boxes() {
           }
         `}</style>
         {visible.map((b) => {
-          const spanMobile = b.gridSpan?.mobile || 1;
-          const spanTablet = b.gridSpan?.tablet || 1;
-          const spanDesktop = b.gridSpan?.desktop || 1;
-          const cls = cn(
-            `col-span-${spanMobile}`,
-            `sm:col-span-${spanTablet}`,
-            `lg:col-span-${spanDesktop}`,
-          );
+          const span = (b.gridSpan?.[bp] as number) || 1;
+          const style: React.CSSProperties = {
+            gridColumn: `span ${span} / span ${span}`,
+            ...alignTo(b.alignH, b.alignV),
+          };
           return (
-            <div key={b.id} className={cls} style={alignTo(b.alignH, b.alignV)}>
+            <div key={b.id} style={style}>
               <Box id={b.id} />
             </div>
           );
