@@ -9,6 +9,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
   AdminPageHeader,
   AdminCard,
