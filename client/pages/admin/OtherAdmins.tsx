@@ -10,7 +10,7 @@ import {
   AdminTextarea,
   AdminSelect,
 } from "@/components/admin/AdminUI";
-import { Image as ImageIcon, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Image as ImageIcon, Plus, Trash2 } from "lucide-react";
 
 function readFileAsDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
