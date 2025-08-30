@@ -646,6 +646,13 @@ const DEFAULTS: SiteConfig = {
     contactSectionBg: "#1a1a1a",
     boxDefaultBg: "#f6f6f6",
   },
+  boxesGrid: {
+    columns: { mobile: 1, tablet: 2, desktop: 4 },
+    columnWidth: { mobile: 0, tablet: 0, desktop: 0 },
+    gap: { mobile: 16, tablet: 20, desktop: 24 },
+    columnColor: "rgba(14,165,233,0.08)",
+    showColumnColor: false,
+  },
   settings: {
     sectionPadding: { hero: 24, boxes: 24, logos: 16, contact: 32 },
     boxHeights: { small: 200, medium: 200, large: 280 },
