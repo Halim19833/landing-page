@@ -99,9 +99,9 @@ export default function AdminLayout() {
         },
         {
           to: "/admin/boxes",
-          label: "Content Boxes",
+          label: "Grid Editor",
           icon: <Box className="h-5 w-5" />,
-          description: "Feature boxes & cards",
+          description: "Manage cards & layout",
         },
         {
           to: "/admin/logos",
