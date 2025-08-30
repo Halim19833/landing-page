@@ -177,7 +177,7 @@ export default function Boxes() {
       }}
     >
       <div
-        className="grid"
+        className="grid boxes-grid"
         style={{
           gridTemplateColumns: gridTemplate(cols.mobile, cwidth.mobile),
           gap: `${gap.mobile}px`,
@@ -192,7 +192,6 @@ export default function Boxes() {
             .boxes-grid{ grid-template-columns: ${gridTemplate(cols.desktop, cwidth.desktop)}; gap: ${gap.desktop}px; }
           }
         `}</style>
-        <div className="boxes-grid contents" />
         {visible.map((b) => {
           const spanMobile = b.gridSpan?.mobile || 1;
           const spanTablet = b.gridSpan?.tablet || 1;
