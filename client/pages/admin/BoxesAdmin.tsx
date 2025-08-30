@@ -32,6 +32,127 @@ function expandShortHex(hex?: string): string | undefined {
   return hex;
 }
 
+import { WidthProvider, Responsive, type Layout, type Layouts } from "react-grid-layout";
+const ResponsiveGridLayout = WidthProvider(Responsive as any);
+
+function ExportImportControls() {
+  const { state, set } = useSiteConfig();
+  const onExport = () => {
+    const data = JSON.stringify(state, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "site-config.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  const onImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const text = await f.text();
+    try {
+      const json = JSON.parse(text);
+      set(json);
+    } catch {}
+  };
+  return (
+    <div className="flex items-center gap-2">
+      <label className="inline-flex items-center">
+        <input type="file" accept="application/json" className="hidden" onChange={onImport} />
+        <button className="px-3 py-1.5 text-sm rounded border">Import JSON</button>
+      </label>
+      <button className="px-3 py-1.5 text-sm rounded border" onClick={onExport}>Export JSON</button>
+    </div>
+  );
+}
+
+function GridEditor() {
+  const { state, set } = useSiteConfig();
+  const cols = state.boxesGrid?.columns || { mobile: 1, tablet: 2, desktop: 4 };
+  const gap = state.boxesGrid?.gap || { mobile: 16, tablet: 20, desktop: 24 };
+
+  const breakpoints = { lg: 1024, md: 640, sm: 0 };
+  const colsMap = { lg: cols.desktop, md: cols.tablet, sm: cols.mobile } as any;
+  const rowHeight = 20;
+
+  const makeLayouts = (): Layouts => {
+    const items = state.boxes;
+    const toL = (bp: "mobile" | "tablet" | "desktop"): Layout[] =>
+      items.map((b, i) => {
+        const l = (b.layout as any)?.[bp] || { x: 0, y: i, w: (b.gridSpan as any)?.[bp] || 1, h: 1 };
+        return { i: b.id, x: l.x, y: l.y, w: l.w, h: l.h, minW: 1, minH: 1 } as Layout;
+      });
+    return { lg: toL("desktop"), md: toL("tablet"), sm: toL("mobile") } as Layouts;
+  };
+
+  const [layouts, setLayouts] = useState<Layouts>(() => makeLayouts());
+
+  useEffect(() => setLayouts(makeLayouts()), [state.boxes.length]);
+
+  const onLayoutsChange = (current: Layout[], all: Layouts) => {
+    setLayouts(all);
+    const mapById = (list: Layout[]) => Object.fromEntries(list.map((l) => [l.i, l]));
+    const lg = mapById(all.lg || []);
+    const md = mapById(all.md || []);
+    const sm = mapById(all.sm || []);
+
+    const nextBoxes = state.boxes.map((b, idx) => {
+      const Lg = lg[b.id] || { x: 0, y: idx, w: (b.gridSpan as any)?.desktop || 1, h: 1 };
+      const Md = md[b.id] || { x: 0, y: idx, w: (b.gridSpan as any)?.tablet || 1, h: 1 };
+      const Sm = sm[b.id] || { x: 0, y: idx, w: (b.gridSpan as any)?.mobile || 1, h: 1 };
+      return {
+        ...b,
+        layout: {
+          desktop: { x: Lg.x, y: Lg.y, w: Lg.w, h: Lg.h },
+          tablet: { x: Md.x, y: Md.y, w: Md.w, h: Md.h },
+          mobile: { x: Sm.x, y: Sm.y, w: Sm.w, h: Sm.h },
+        },
+        gridSpan: {
+          desktop: Lg.w,
+          tablet: Md.w,
+          mobile: Sm.w,
+        } as any,
+      };
+    });
+    set({ boxes: nextBoxes });
+  };
+
+  return (
+    <div>
+      <ResponsiveGridLayout
+        className="layout"
+        breakpoints={breakpoints}
+        cols={colsMap}
+        rowHeight={rowHeight}
+        margin={[gap.mobile, gap.mobile] as any}
+        layouts={layouts}
+        onLayoutChange={onLayoutsChange}
+        onLayoutsChange={onLayoutsChange}
+        isDraggable
+        isResizable
+        compactType="vertical"
+      >
+        {state.boxes.map((b) => (
+          <div key={b.id} className="rounded border bg-white overflow-hidden">
+            <div className="p-2 text-sm font-medium border-b bg-gray-50 flex items-center justify-between">
+              <span className="truncate">{b.title}</span>
+              <span className="text-xs text-gray-500">{b.size}</span>
+            </div>
+            <div className="p-3">
+              {b.imageUrl ? (
+                <img src={b.imageUrl} className="w-full h-24 object-cover rounded" alt="preview" />
+              ) : (
+                <div className="h-24 flex items-center justify-center text-xs text-gray-500">No image</div>
+              )}
+            </div>
+          </div>
+        ))}
+      </ResponsiveGridLayout>
+    </div>
+  );
+}
+
 export default function BoxesAdmin() {
   const { state, set } = useSiteConfig();
   const [dragIdx, setDragIdx] = useState<number | null>(null);
