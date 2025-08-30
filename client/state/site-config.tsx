@@ -546,11 +546,11 @@ const KEY = "site-config-v1";
 function load(): SiteConfig {
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return DEFAULTS;
+    if (!raw) return sanitizeConfig(DEFAULTS);
     const parsed = JSON.parse(raw) as SiteConfig;
     return sanitizeConfig({ ...DEFAULTS, ...parsed } as SiteConfig);
   } catch {
-    return DEFAULTS;
+    return sanitizeConfig(DEFAULTS);
   }
 }
 
