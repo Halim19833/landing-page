@@ -247,6 +247,14 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
     const alignH: Box["alignH"] = b.alignH || "left";
     const alignV: Box["alignV"] = b.alignV || "top";
 
+    const makeLayout = (w: number, i: number): BoxLayoutItem => ({ x: 0, y: i, w, h: 1 });
+    const idx = (data.boxes || []).findIndex((bx) => bx.id === b.id);
+    const layout: BoxLayout = b.layout || {
+      mobile: makeLayout(gridSpan.mobile, idx),
+      tablet: makeLayout(gridSpan.tablet, idx),
+      desktop: makeLayout(gridSpan.desktop, idx),
+    };
+
     return {
       ...b,
       ctaMode: b.ctaMode || "button",
@@ -256,6 +264,7 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
       gridSpan,
       alignH,
       alignV,
+      layout,
       modalStyle: b.modalStyle
         ? {
             ...b.modalStyle,
