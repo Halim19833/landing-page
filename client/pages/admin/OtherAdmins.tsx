@@ -328,6 +328,67 @@ export function FooterAdmin() {
             onChange={(e) => set({ footer: { ...state.footer, extraText: e.target.value } })}
           />
         </AdminFormGroup>
+        <AdminFormGroup label="Description">
+          <AdminTextarea
+            value={state.footer.description || ""}
+            onChange={(e) => set({ footer: { ...state.footer, description: e.target.value } })}
+          />
+        </AdminFormGroup>
+
+        <AdminSection title="Quick Links" description="Manage footer links list.">
+          <div className="space-y-2">
+            {(state.footer.links || []).map((link, i) => (
+              <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <AdminInput
+                  placeholder="Label"
+                  value={link.label}
+                  onChange={(e) => {
+                    const links = [...(state.footer.links || [])];
+                    links[i] = { ...link, label: e.target.value };
+                    set({ footer: { ...state.footer, links } });
+                  }}
+                  className="sm:w-48"
+                />
+                <AdminInput
+                  placeholder="https://..."
+                  value={link.href}
+                  onChange={(e) => {
+                    const links = [...(state.footer.links || [])];
+                    links[i] = { ...link, href: e.target.value };
+                    set({ footer: { ...state.footer, links } });
+                  }}
+                  className="flex-1"
+                />
+                <div className="flex items-center gap-1">
+                  <AdminButton size="small" variant="secondary" onClick={() => {
+                    const links = [...(state.footer.links || [])];
+                    if (i === 0) return;
+                    const [it] = links.splice(i, 1);
+                    links.splice(i - 1, 0, it);
+                    set({ footer: { ...state.footer, links } });
+                  }}>↑</AdminButton>
+                  <AdminButton size="small" variant="secondary" onClick={() => {
+                    const links = [...(state.footer.links || [])];
+                    if (i >= links.length - 1) return;
+                    const [it] = links.splice(i, 1);
+                    links.splice(i + 1, 0, it);
+                    set({ footer: { ...state.footer, links } });
+                  }}>↓</AdminButton>
+                  <AdminIconButton variant="danger" size="small" onClick={() => {
+                    const links = [...(state.footer.links || [])];
+                    links.splice(i, 1);
+                    set({ footer: { ...state.footer, links } });
+                  }}>
+                    <Trash2 className="h-3 w-3" />
+                  </AdminIconButton>
+                </div>
+              </div>
+            ))}
+            <AdminButton size="small" onClick={() => set({ footer: { ...state.footer, links: [...(state.footer.links || []), { label: "New Link", href: "#" }] } })}>
+              <Plus className="h-4 w-4 mr-2" /> Add Link
+            </AdminButton>
+          </div>
+        </AdminSection>
 
         <AdminSection title="Social Links" description="Add links and control their order.">
           <div className="grid sm:grid-cols-2 gap-3">
@@ -348,6 +409,14 @@ export function FooterAdmin() {
                     <AdminButton size="small" variant="secondary" onClick={() => reorder(k, 1)}>
                       ↓
                     </AdminButton>
+                    <AdminIconButton
+                      variant="danger"
+                      size="small"
+                      title="Clear"
+                      onClick={() => updateSocial(k, "")}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </AdminIconButton>
                   </div>
                 </div>
               ),
