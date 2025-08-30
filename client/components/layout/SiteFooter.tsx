@@ -10,105 +10,146 @@ import {
 import { useSiteConfig } from "@/state/site-config";
 import { bgStyleFrom } from "@/lib/background";
 
-const SocialIcon = ({ platform, url }: { platform: string; url: string }) => {
-  const iconProps = { className: "h-5 w-5" };
-
-  switch (platform) {
+function IconFor({ name, className, color }: { name: string; className?: string; color?: string }) {
+  const props = { className: className || "h-5 w-5", style: color ? { color } : undefined } as any;
+  switch (name) {
     case "facebook":
-      return <Facebook {...iconProps} style={{ color: "#1877F2" }} />;
+    case "Facebook":
+      return <Facebook {...props} />;
     case "twitter":
-      return <Twitter {...iconProps} style={{ color: "#1DA1F2" }} />;
+    case "Twitter":
+      return <Twitter {...props} />;
     case "instagram":
-      return <Instagram {...iconProps} style={{ color: "#E1306C" }} />;
+    case "Instagram":
+      return <Instagram {...props} />;
     case "linkedin":
-      return <Linkedin {...iconProps} style={{ color: "#0A66C2" }} />;
-    case "github":
-      return <Github {...iconProps} style={{ color: "#333" }} />;
+    case "Linkedin":
+    case "LinkedIn":
+      return <Linkedin {...props} />;
     case "youtube":
-      return <Youtube {...iconProps} style={{ color: "#FF0000" }} />;
+    case "YouTube":
+    case "Youtube":
+      return <Youtube {...props} />;
+    case "github":
+    case "GitHub":
+    case "Github":
+      return <Github {...props} />;
     default:
-      return null;
+      return <Github {...props} />;
   }
-};
+}
 
 export default function SiteFooter() {
   const { state } = useSiteConfig();
-  const socialOrder = state.footer.socialOrder || [
-    "facebook",
-    "twitter",
-    "instagram",
-    "linkedin",
-  ];
-  const socials = state.footer.socials || {};
+  const footer = state.footer;
+  const headings = footer.headings!;
+  const colors = footer.colors!;
+  const linksBy = footer.linksByColumn!;
+  const socialIcons = (footer.socialIcons || []).filter((s) => s.enabled && s.url).sort((a, b) => a.order - b.order);
+
+  const textColor = colors.textColor || "#ffffff";
+  const linkColor = colors.linkColor || textColor;
+  const iconColor = colors.iconColor || textColor;
 
   return (
     <footer
-      className="mt-24 text-white"
+      className="mt-24"
       style={{
         ...bgStyleFrom(state.footer.background as any),
-        color: "white",
+        color: textColor,
       }}
     >
       <div className="mx-auto max-w-[1200px] px-6 py-12">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-8">
-          <div>
-            <h3 className="text-lg font-semibold mb-3">
-              {state.header.logoText}
-            </h3>
-            <p className="text-sm opacity-80 leading-relaxed">
-              {state.footer.description ||
-                "We craft reliable web platforms and modern digital experiences with a focus on performance and usability."}
-            </p>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-3">Quick Links</h3>
-            <ul className="space-y-2 text-sm">
-              {(state.footer.links || []).map((l, idx) => (
-                <li key={idx}>
-                  <a
-                    href={l.href || "#"}
-                    className="opacity-80 hover:opacity-100 hover:underline transition-opacity"
-                  >
-                    {l.label || "Link"}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-3">Connect</h3>
-            <p className="text-sm opacity-80 mb-4">
-              Follow us on social media for updates and news.
-            </p>
-
-            {/* Social Icons */}
-            <div className="flex gap-3">
-              {socialOrder.map((platform) => {
-                const url = (socials as any)[platform];
-                if (!url) return null;
-                return (
-                  <a
-                    key={platform}
-                    aria-label={`Follow us on ${platform}`}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 hover:scale-105"
-                  >
-                    <SocialIcon platform={platform} url={url} />
-                  </a>
-                );
-              })}
+          {headings.about.enabled && (
+            <div>
+              <h3 className="text-lg font-semibold mb-3" style={{ color: textColor }}>
+                {headings.about.title}
+              </h3>
+              <p className="text-sm opacity-80 leading-relaxed" style={{ color: textColor }}>
+                {footer.description ||
+                  "We craft reliable web platforms and modern digital experiences with a focus on performance and usability."}
+              </p>
+              {linksBy.about && linksBy.about.length > 0 && (
+                <ul className="mt-4 space-y-2 text-sm">
+                  {linksBy.about.filter((l) => l.enabled).map((l, idx) => (
+                    <li key={idx}>
+                      <a href={l.url || "#"} style={{ color: linkColor }} className="hover:underline">
+                        {l.text || "Link"}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          </div>
+          )}
+
+          {headings.quick.enabled && (
+            <div>
+              <h3 className="text-lg font-semibold mb-3" style={{ color: textColor }}>
+                {headings.quick.title}
+              </h3>
+              <ul className="space-y-2 text-sm">
+                {linksBy.quick.filter((l) => l.enabled).map((l, idx) => (
+                  <li key={idx}>
+                    <a
+                      href={l.url || "#"}
+                      style={{ color: linkColor }}
+                      className="opacity-90 hover:opacity-100 hover:underline transition-opacity"
+                    >
+                      {l.text || "Link"}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {headings.contact.enabled && (
+            <div>
+              <h3 className="text-lg font-semibold mb-3" style={{ color: textColor }}>
+                {headings.contact.title}
+              </h3>
+              {linksBy.contact && linksBy.contact.length > 0 && (
+                <ul className="space-y-2 text-sm mb-4">
+                  {linksBy.contact.filter((l) => l.enabled).map((l, idx) => (
+                    <li key={idx}>
+                      <a href={l.url || "#"} style={{ color: linkColor }} className="hover:underline">
+                        {l.text || "Contact"}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Social Icons */}
+              {socialIcons.length > 0 && (
+                <div className="flex gap-3">
+                  {socialIcons.map((s, i) => (
+                    <a
+                      key={`${s.platform}-${i}`}
+                      aria-label={`Follow us on ${s.platform}`}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 hover:scale-105"
+                      style={{ color: iconColor }}
+                    >
+                      <IconFor name={s.icon || s.platform} color={iconColor} />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer Bottom */}
-        <div className="border-t border-white/20 pt-6">
+        <div className="border-t pt-6" style={{ borderColor: "rgba(255,255,255,0.2)" }}>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm opacity-80">
-            <span>{state.footer.text}</span>
-            {state.footer.extraText && <span>{state.footer.extraText}</span>}
+            <span style={{ color: textColor }}>{state.footer.text}</span>
+            {state.footer.extraText && <span style={{ color: textColor }}>{state.footer.extraText}</span>}
           </div>
         </div>
       </div>
