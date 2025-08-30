@@ -343,223 +343,258 @@ export function HeaderAdmin() {
 
 export function FooterAdmin() {
   const { state, set } = useSiteConfig();
-  type SocialKey =
-    | "facebook"
-    | "twitter"
-    | "instagram"
-    | "linkedin"
-    | "youtube"
-    | "github";
-  const updateSocial = (k: SocialKey, v: string) =>
-    set({
-      footer: {
-        ...state.footer,
-        socials: { ...(state.footer.socials || {}), [k]: v },
-        text: state.footer.text,
-        extraText: state.footer.extraText,
-        socialOrder: state.footer.socialOrder || [
-          "facebook",
-          "twitter",
-          "instagram",
-          "linkedin",
-        ],
-      },
-    });
-  const reorder = (k: SocialKey, dir: -1 | 1) => {
-    const order = [
-      ...(state.footer.socialOrder || [
-        "facebook",
-        "twitter",
-        "instagram",
-        "linkedin",
-      ]),
-    ] as SocialKey[];
-    const idx = order.indexOf(k);
-    if (idx === -1) return;
-    const ni = Math.min(order.length - 1, Math.max(0, idx + dir));
-    order.splice(idx, 1);
-    order.splice(ni, 0, k);
-    set({ footer: { ...state.footer, socialOrder: order } });
+  const footer = state.footer;
+  const headings = footer.headings!;
+  const linksBy = footer.linksByColumn!;
+  const socialIcons = (footer.socialIcons || []).slice().sort((a, b) => a.order - b.order);
+
+  const updateFooter = (patch: Partial<typeof footer>) => set({ footer: { ...footer, ...patch } });
+
+  const updateHead = (key: keyof NonNullable<typeof headings>, patch: Partial<(typeof headings)[typeof key]>) => {
+    updateFooter({ headings: { ...headings, [key]: { ...headings[key], ...patch } } });
   };
+
+  const updateLink = (
+    column: keyof NonNullable<typeof linksBy>,
+    idx: number,
+    patch: Partial<NonNullable<typeof linksBy>[typeof column][number]>,
+  ) => {
+    const arr = [...linksBy[column]];
+    arr[idx] = { ...arr[idx], ...patch };
+    updateFooter({ linksByColumn: { ...linksBy, [column]: arr } });
+  };
+  const addLink = (column: keyof NonNullable<typeof linksBy>) => {
+    const arr = [...linksBy[column], { text: "New", url: "#", enabled: true }];
+    updateFooter({ linksByColumn: { ...linksBy, [column]: arr } });
+  };
+  const removeLink = (column: keyof NonNullable<typeof linksBy>, idx: number) => {
+    const arr = [...linksBy[column]];
+    arr.splice(idx, 1);
+    updateFooter({ linksByColumn: { ...linksBy, [column]: arr } });
+  };
+  const moveLink = (column: keyof NonNullable<typeof linksBy>, idx: number, dir: -1 | 1) => {
+    const arr = [...linksBy[column]];
+    const ni = Math.min(arr.length - 1, Math.max(0, idx + dir));
+    if (ni === idx) return;
+    const [it] = arr.splice(idx, 1);
+    arr.splice(ni, 0, it);
+    updateFooter({ linksByColumn: { ...linksBy, [column]: arr } });
+  };
+
+  const updateSocial = (idx: number, patch: Partial<NonNullable<typeof socialIcons>[number]>) => {
+    const arr = [...socialIcons];
+    arr[idx] = { ...arr[idx], ...patch };
+    updateFooter({ socialIcons: arr });
+  };
+  const addSocial = () => {
+    const arr = [...socialIcons, { platform: "facebook", url: "", icon: "facebook", order: socialIcons.length, enabled: true }];
+    updateFooter({ socialIcons: arr });
+  };
+  const removeSocial = (idx: number) => {
+    const arr = [...socialIcons];
+    arr.splice(idx, 1);
+    arr.forEach((s, i) => (s.order = i));
+    updateFooter({ socialIcons: arr });
+  };
+  const moveSocial = (idx: number, dir: -1 | 1) => {
+    const arr = [...socialIcons];
+    const ni = Math.min(arr.length - 1, Math.max(0, idx + dir));
+    if (ni === idx) return;
+    const [it] = arr.splice(idx, 1);
+    arr.splice(ni, 0, it);
+    arr.forEach((s, i) => (s.order = i));
+    updateFooter({ socialIcons: arr });
+  };
+
+  const colors = footer.colors || { textColor: "#ffffff", linkColor: "#ffffff", iconColor: "#ffffff" };
+
   return (
     <div className="space-y-8">
       <AdminPageHeader
         title="Footer"
-        description="Manage footer content, social links, and background."
+        description="Manage footer content, headings, links, social icons, colors and background."
       />
 
       <AdminCard className="space-y-6">
         <AdminFormGroup label="Copyright">
           <AdminTextarea
-            value={state.footer.text}
-            onChange={(e) =>
-              set({ footer: { ...state.footer, text: e.target.value } })
-            }
+            value={footer.text}
+            onChange={(e) => updateFooter({ text: e.target.value })}
           />
         </AdminFormGroup>
         <AdminFormGroup label="Extra Text">
           <AdminInput
-            value={state.footer.extraText || ""}
-            onChange={(e) =>
-              set({ footer: { ...state.footer, extraText: e.target.value } })
-            }
+            value={footer.extraText || ""}
+            onChange={(e) => updateFooter({ extraText: e.target.value })}
           />
         </AdminFormGroup>
-        <AdminFormGroup label="Description">
+        <AdminFormGroup label="About Description">
           <AdminTextarea
-            value={state.footer.description || ""}
-            onChange={(e) =>
-              set({ footer: { ...state.footer, description: e.target.value } })
-            }
+            value={footer.description || ""}
+            onChange={(e) => updateFooter({ description: e.target.value })}
           />
         </AdminFormGroup>
 
-        <AdminSection
-          title="Quick Links"
-          description="Manage footer links list."
-        >
+        <AdminSection title="Headings & Visibility" description="Control column headings and enable/disable sections.">
+          <div className="grid sm:grid-cols-3 gap-4">
+            {(["about", "quick", "contact"] as const).map((k) => (
+              <div key={k} className="space-y-2">
+                <label className="text-sm capitalize">{k}</label>
+                <AdminInput
+                  value={headings[k].title}
+                  onChange={(e) => updateHead(k, { title: e.target.value })}
+                />
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={headings[k].enabled}
+                    onChange={(e) => updateHead(k, { enabled: e.target.checked })}
+                  />
+                  <span>Enabled</span>
+                </label>
+              </div>
+            ))}
+          </div>
+        </AdminSection>
+
+        <AdminSection title="Links by Column" description="Manage links for About, Quick Links, and Contact.">
+          <div className="space-y-6">
+            {(["about", "quick", "contact"] as const).map((col) => (
+              <div key={col} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium capitalize">{col}</h4>
+                  <AdminButton size="small" onClick={() => addLink(col)}>
+                    <Plus className="h-4 w-4 mr-2" /> Add Link
+                  </AdminButton>
+                </div>
+                <div className="space-y-2">
+                  {linksBy[col].map((link, i) => (
+                    <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-2">
+                      <AdminInput
+                        placeholder="Text"
+                        value={link.text}
+                        onChange={(e) => updateLink(col, i, { text: e.target.value })}
+                        className="sm:w-48"
+                      />
+                      <AdminInput
+                        placeholder="https://..."
+                        value={link.url}
+                        onChange={(e) => updateLink(col, i, { url: e.target.value })}
+                        className="flex-1"
+                      />
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={link.enabled}
+                          onChange={(e) => updateLink(col, i, { enabled: e.target.checked })}
+                        />
+                        <span>Enabled</span>
+                      </label>
+                      <div className="flex items-center gap-1">
+                        <AdminButton size="small" variant="secondary" onClick={() => moveLink(col, i, -1)}>
+                          ↑
+                        </AdminButton>
+                        <AdminButton size="small" variant="secondary" onClick={() => moveLink(col, i, 1)}>
+                          ↓
+                        </AdminButton>
+                        <AdminIconButton variant="danger" size="small" onClick={() => removeLink(col, i)}>
+                          <Trash2 className="h-3 w-3" />
+                        </AdminIconButton>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </AdminSection>
+
+        <AdminSection title="Social Media Icons" description="Add, enable, and reorder social icons.">
           <div className="space-y-2">
-            {(state.footer.links || []).map((link, i) => (
-              <div
-                key={i}
-                className="flex flex-col sm:flex-row sm:items-center gap-2"
-              >
+            {socialIcons.map((s, i) => (
+              <div key={`${s.platform}-${i}`} className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <AdminInput
-                  placeholder="Label"
-                  value={link.label}
-                  onChange={(e) => {
-                    const links = [...(state.footer.links || [])];
-                    links[i] = { ...link, label: e.target.value };
-                    set({ footer: { ...state.footer, links } });
-                  }}
-                  className="sm:w-48"
+                  value={s.platform}
+                  onChange={(e) => updateSocial(i, { platform: e.target.value })}
+                  className="sm:w-40"
+                  placeholder="platform"
                 />
                 <AdminInput
-                  placeholder="https://..."
-                  value={link.href}
-                  onChange={(e) => {
-                    const links = [...(state.footer.links || [])];
-                    links[i] = { ...link, href: e.target.value };
-                    set({ footer: { ...state.footer, links } });
-                  }}
+                  value={s.icon}
+                  onChange={(e) => updateSocial(i, { icon: e.target.value })}
+                  className="sm:w-40"
+                  placeholder="icon name"
+                />
+                <AdminInput
+                  value={s.url}
+                  onChange={(e) => updateSocial(i, { url: e.target.value })}
                   className="flex-1"
+                  placeholder="https://..."
                 />
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={s.enabled}
+                    onChange={(e) => updateSocial(i, { enabled: e.target.checked })}
+                  />
+                  <span>Enabled</span>
+                </label>
                 <div className="flex items-center gap-1">
-                  <AdminButton
-                    size="small"
-                    variant="secondary"
-                    onClick={() => {
-                      const links = [...(state.footer.links || [])];
-                      if (i === 0) return;
-                      const [it] = links.splice(i, 1);
-                      links.splice(i - 1, 0, it);
-                      set({ footer: { ...state.footer, links } });
-                    }}
-                  >
+                  <AdminButton size="small" variant="secondary" onClick={() => moveSocial(i, -1)}>
                     ↑
                   </AdminButton>
-                  <AdminButton
-                    size="small"
-                    variant="secondary"
-                    onClick={() => {
-                      const links = [...(state.footer.links || [])];
-                      if (i >= links.length - 1) return;
-                      const [it] = links.splice(i, 1);
-                      links.splice(i + 1, 0, it);
-                      set({ footer: { ...state.footer, links } });
-                    }}
-                  >
+                  <AdminButton size="small" variant="secondary" onClick={() => moveSocial(i, 1)}>
                     ↓
                   </AdminButton>
-                  <AdminIconButton
-                    variant="danger"
-                    size="small"
-                    onClick={() => {
-                      const links = [...(state.footer.links || [])];
-                      links.splice(i, 1);
-                      set({ footer: { ...state.footer, links } });
-                    }}
-                  >
+                  <AdminIconButton variant="danger" size="small" onClick={() => removeSocial(i)}>
                     <Trash2 className="h-3 w-3" />
                   </AdminIconButton>
                 </div>
               </div>
             ))}
-            <AdminButton
-              size="small"
-              onClick={() =>
-                set({
-                  footer: {
-                    ...state.footer,
-                    links: [
-                      ...(state.footer.links || []),
-                      { label: "New Link", href: "#" },
-                    ],
-                  },
-                })
-              }
-            >
-              <Plus className="h-4 w-4 mr-2" /> Add Link
+            <AdminButton size="small" onClick={addSocial}>
+              <Plus className="h-4 w-4 mr-2" /> Add Social
             </AdminButton>
           </div>
         </AdminSection>
 
-        <AdminSection
-          title="Social Links"
-          description="Add links and control their order."
-        >
-          <div className="grid sm:grid-cols-2 gap-3">
-            {(
-              [
-                "facebook",
-                "twitter",
-                "instagram",
-                "linkedin",
-                "github",
-                "youtube",
-              ] as const
-            ).map((k) => (
-              <div key={k} className="flex items-center gap-2">
-                <label className="w-24 text-sm capitalize">{k}</label>
-                <AdminInput
-                  value={(state.footer.socials || {})[k] || ""}
-                  onChange={(e) => updateSocial(k, e.target.value)}
-                  placeholder={`https://${k}.com/...`}
-                  className="flex-1"
-                />
-                <div className="flex items-center gap-1">
-                  <AdminButton
-                    size="small"
-                    variant="secondary"
-                    onClick={() => reorder(k, -1)}
-                  >
-                    ↑
-                  </AdminButton>
-                  <AdminButton
-                    size="small"
-                    variant="secondary"
-                    onClick={() => reorder(k, 1)}
-                  >
-                    ↓
-                  </AdminButton>
-                  <AdminIconButton
-                    variant="danger"
-                    size="small"
-                    title="Clear"
-                    onClick={() => updateSocial(k, "")}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </AdminIconButton>
-                </div>
-              </div>
-            ))}
+        <AdminSection title="Colors" description="Customize text, link, and icon colors.">
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3">
+              <label className="text-sm w-28">Text</label>
+              <input
+                type="color"
+                value={colors.textColor || "#ffffff"}
+                onChange={(e) => updateFooter({ colors: { ...colors, textColor: e.target.value } })}
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="text-sm w-28">Links</label>
+              <input
+                type="color"
+                value={colors.linkColor || colors.textColor || "#ffffff"}
+                onChange={(e) => updateFooter({ colors: { ...colors, linkColor: e.target.value } })}
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="text-sm w-28">Icons</label>
+              <input
+                type="color"
+                value={colors.iconColor || colors.textColor || "#ffffff"}
+                onChange={(e) => updateFooter({ colors: { ...colors, iconColor: e.target.value } })}
+              />
+            </div>
           </div>
         </AdminSection>
 
         <BackgroundControls
-          value={state.footer.background}
-          onChange={(v) => set({ footer: { ...state.footer, background: v } })}
+          value={footer.background}
+          onChange={(v) => updateFooter({ background: v })}
         />
+
+        <div className="flex justify-end">
+          <AdminButton onClick={() => updateFooter({})}>Apply</AdminButton>
+        </div>
       </AdminCard>
     </div>
   );
