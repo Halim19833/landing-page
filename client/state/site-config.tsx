@@ -76,7 +76,9 @@ export type HeaderConfig = {
 };
 export type FooterConfig = {
   text: string;
+  description?: string;
   extraText?: string;
+  links?: { label: string; href: string }[];
   socials?: Partial<
     Record<
       "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "github",
@@ -386,6 +388,13 @@ const DEFAULTS: SiteConfig = {
   ],
   footer: {
     text: `© ${new Date().getFullYear()} NovaTech. All rights reserved.`,
+    description:
+      "We craft reliable web platforms and modern digital experiences with a focus on performance and usability.",
+    links: [
+      { label: "About", href: "#" },
+      { label: "Services", href: "#" },
+      { label: "Contact", href: "#contact" },
+    ],
     socials: {},
     socialOrder: ["facebook", "twitter", "instagram", "linkedin"],
     background: { kind: "color", color: "#0a0a0a" },
