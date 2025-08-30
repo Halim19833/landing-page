@@ -7,7 +7,14 @@ import {
   AdminIconButton,
   AdminInput,
 } from "@/components/admin/AdminUI";
-import { GripVertical, Eye, EyeOff, Trash2, Building2, Link as LinkIcon } from "lucide-react";
+import {
+  GripVertical,
+  Eye,
+  EyeOff,
+  Trash2,
+  Building2,
+  Link as LinkIcon,
+} from "lucide-react";
 
 function readFileAsDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -32,10 +39,14 @@ export default function LogosAdmin() {
     set({ logos: state.logos.filter((l) => l.id !== id) });
   const toggle = (id: string) =>
     set({
-      logos: state.logos.map((l) => (l.id === id ? { ...l, hidden: !l.hidden } : l)),
+      logos: state.logos.map((l) =>
+        l.id === id ? { ...l, hidden: !l.hidden } : l,
+      ),
     });
   const update = (id: string, patch: any) =>
-    set({ logos: state.logos.map((l) => (l.id === id ? { ...l, ...patch } : l)) });
+    set({
+      logos: state.logos.map((l) => (l.id === id ? { ...l, ...patch } : l)),
+    });
 
   const onDragStart = (i: number) => setDragIdx(i);
   const onDrop = (i: number) => {
@@ -54,7 +65,12 @@ export default function LogosAdmin() {
         description="Upload partner/client logos and control their order in the marquee."
         action={
           <label className="inline-flex items-center">
-            <input type="file" accept="image/*" className="hidden" onChange={addLogo} />
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={addLogo}
+            />
             <AdminButton className="cursor-pointer">
               <Building2 className="h-4 w-4 mr-2" /> Upload Logo
             </AdminButton>
@@ -86,7 +102,11 @@ export default function LogosAdmin() {
                 <GripVertical className="h-4 w-4 text-gray-600" />
               </span>
 
-              <img src={l.url} alt="logo" className="h-10 w-auto object-contain" />
+              <img
+                src={l.url}
+                alt="logo"
+                className="h-10 w-auto object-contain"
+              />
 
               <div className="flex-1">
                 <div className="flex items-center gap-2">

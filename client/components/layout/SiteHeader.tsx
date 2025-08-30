@@ -37,7 +37,11 @@ export default function SiteHeader() {
         setTimeout(tick, backoff);
         return;
       }
-      if (typeof navigator !== "undefined" && navigator && (navigator as any).onLine === false) {
+      if (
+        typeof navigator !== "undefined" &&
+        navigator &&
+        (navigator as any).onLine === false
+      ) {
         setTimeout(tick, backoff);
         return;
       }
