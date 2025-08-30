@@ -25,6 +25,30 @@ export default function SliderAdmin() {
   const { state, set } = useSiteConfig();
   const [dragIdx, setDragIdx] = useState<number | null>(null);
 
+  // Local form state for size controls
+  const cfg = state.slider || { widthPercent: 100, height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 } };
+  const [widthPercent, setWidthPercent] = useState<number>(cfg.widthPercent);
+  const [unit, setUnit] = useState<"px" | "vh">(cfg.height.unit);
+  const [mobileH, setMobileH] = useState<number>(cfg.height.mobile);
+  const [tabletH, setTabletH] = useState<number>(cfg.height.tablet);
+  const [desktopH, setDesktopH] = useState<number>(cfg.height.desktop);
+
+  useEffect(() => {
+    // keep local state in sync if external changes happen
+    const s = state.slider || cfg;
+    setWidthPercent(s.widthPercent);
+    setUnit(s.height.unit);
+    setMobileH(s.height.mobile);
+    setTabletH(s.height.tablet);
+    setDesktopH(s.height.desktop);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.slider?.widthPercent, state.slider?.height?.unit, state.slider?.height?.mobile, state.slider?.height?.tablet, state.slider?.height?.desktop]);
+
+  const applySize = () => {
+    set({ slider: { widthPercent, height: { unit, mobile: mobileH, tablet: tabletH, desktop: desktopH } } });
+    toast({ title: "Saved", description: "Hero Slider size updated successfully." });
+  };
+
   const addSlide = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -70,6 +94,65 @@ export default function SliderAdmin() {
           </label>
         }
       />
+
+      {/* Size Controls */}
+      <AdminCard className="space-y-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <AdminFormGroup label="Width (%)">
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min={50}
+                max={100}
+                value={widthPercent}
+                onChange={(e) => setWidthPercent(Number(e.target.value))}
+                className="flex-1"
+              />
+              <AdminInput
+                type="number"
+                value={widthPercent}
+                onChange={(e) => setWidthPercent(Math.max(50, Math.min(100, Number(e.target.value))))}
+                className="w-24"
+              />
+            </div>
+          </AdminFormGroup>
+          <AdminFormGroup label="Height Unit">
+            <AdminSelect value={unit} onChange={(e) => setUnit(e.target.value as any)}>
+              <option value="px">Pixels (px)</option>
+              <option value="vh">Viewport (vh)</option>
+            </AdminSelect>
+          </AdminFormGroup>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4">
+          <AdminFormGroup label="Mobile Height">
+            <AdminInput
+              type="number"
+              value={mobileH}
+              onChange={(e) => setMobileH(Number(e.target.value))}
+              placeholder={unit === "vh" ? "e.g., 24" : "e.g., 250"}
+            />
+          </AdminFormGroup>
+          <AdminFormGroup label="Tablet Height">
+            <AdminInput
+              type="number"
+              value={tabletH}
+              onChange={(e) => setTabletH(Number(e.target.value))}
+              placeholder={unit === "vh" ? "e.g., 32" : "e.g., 320"}
+            />
+          </AdminFormGroup>
+          <AdminFormGroup label="Desktop Height">
+            <AdminInput
+              type="number"
+              value={desktopH}
+              onChange={(e) => setDesktopH(Number(e.target.value))}
+              placeholder={unit === "vh" ? "e.g., 40" : "e.g., 400"}
+            />
+          </AdminFormGroup>
+        </div>
+        <div className="flex justify-end">
+          <AdminButton onClick={applySize}>Save Changes</AdminButton>
+        </div>
+      </AdminCard>
 
       {state.slides.length === 0 && (
         <AdminCard className="text-sm text-gray-600">
