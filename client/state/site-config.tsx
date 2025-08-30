@@ -383,11 +383,41 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
     },
   } as SliderConfig;
 
+  // boxesGrid defaults
+  const boxesGrid = (data.boxesGrid || {
+    columns: { mobile: 1, tablet: 2, desktop: 4 },
+    columnWidth: { mobile: 0, tablet: 0, desktop: 0 },
+    gap: { mobile: 16, tablet: 20, desktop: 24 },
+    columnColor: "rgba(14,165,233,0.08)",
+    showColumnColor: false,
+  }) as BoxesGridConfig;
+  const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, Math.round(v)));
+  const boxesGridFixed: BoxesGridConfig = {
+    columns: {
+      mobile: clamp(boxesGrid.columns.mobile || 1, 1, 12),
+      tablet: clamp(boxesGrid.columns.tablet || 2, 1, 12),
+      desktop: clamp(boxesGrid.columns.desktop || 4, 1, 12),
+    },
+    columnWidth: {
+      mobile: Math.max(0, Math.round(boxesGrid.columnWidth?.mobile || 0)),
+      tablet: Math.max(0, Math.round(boxesGrid.columnWidth?.tablet || 0)),
+      desktop: Math.max(0, Math.round(boxesGrid.columnWidth?.desktop || 0)),
+    },
+    gap: {
+      mobile: Math.max(0, Math.round(boxesGrid.gap?.mobile || 16)),
+      tablet: Math.max(0, Math.round(boxesGrid.gap?.tablet || 20)),
+      desktop: Math.max(0, Math.round(boxesGrid.gap?.desktop || 24)),
+    },
+    columnColor: boxesGrid.columnColor || "rgba(14,165,233,0.08)",
+    showColumnColor: !!boxesGrid.showColumnColor,
+  };
+
   return {
     ...data,
     boxes,
     footer: nextFooter,
     slider: sliderFixed,
+    boxesGrid: boxesGridFixed,
     theme: {
       ...theme,
       brand: fix(theme.brand),
