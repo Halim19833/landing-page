@@ -605,6 +605,55 @@ export default function BoxesAdmin() {
 
               <div className="space-y-3">
                 <div className="space-y-2">
+                  <label className="text-sm">Grid Span</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["mobile","tablet","desktop"] as const).map((bp) => (
+                      <div key={bp} className="flex items-center gap-2">
+                        <span className="text-xs capitalize w-14">{bp}</span>
+                        <input
+                          type="number"
+                          min={1}
+                          max={12}
+                          value={(draft.gridSpan as any)?.[bp] ?? 1}
+                          onChange={(e) => setDraft(live.id, { gridSpan: { ...(draft.gridSpan || { mobile:1, tablet:1, desktop:1 }), [bp]: Number(e.target.value) } })}
+                          className="w-20 border rounded px-2 py-1 text-sm"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm">Alignment</label>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs w-12">Horizontal</span>
+                      <select
+                        value={draft.alignH || "left"}
+                        onChange={(e) => setDraft(live.id, { alignH: e.target.value as any })}
+                        className="border rounded px-2 py-1 text-sm"
+                      >
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs w-12">Vertical</span>
+                      <select
+                        value={draft.alignV || "top"}
+                        onChange={(e) => setDraft(live.id, { alignV: e.target.value as any })}
+                        className="border rounded px-2 py-1 text-sm"
+                      >
+                        <option value="top">Top</option>
+                        <option value="center">Center</option>
+                        <option value="bottom">Bottom</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
                   <label className="text-sm">Modal Styles</label>
                   <div className="flex items-center gap-2">
                     <span className="text-xs">BG</span>
