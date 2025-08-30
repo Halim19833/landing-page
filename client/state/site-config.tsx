@@ -74,17 +74,45 @@ export type HeaderConfig = {
   selectedLang?: string;
   background?: BoxBackground;
 };
+
+export type FooterLinkItem = { text: string; url: string; enabled: boolean };
+export type FooterSocialItem = {
+  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "github" | string;
+  url: string;
+  icon: string; // lucide icon name or platform key
+  order: number;
+  enabled: boolean;
+};
+export type FooterHeadings = {
+  about: { title: string; enabled: boolean };
+  quick: { title: string; enabled: boolean };
+  contact: { title: string; enabled: boolean };
+};
+export type FooterColors = {
+  textColor?: string;
+  linkColor?: string;
+  iconColor?: string;
+};
+export type FooterLinksByColumn = {
+  about: FooterLinkItem[];
+  quick: FooterLinkItem[];
+  contact: FooterLinkItem[];
+};
+
 export type FooterConfig = {
   text: string;
   description?: string;
   extraText?: string;
+  // Legacy quick-links list (kept for migration)
   links?: { label: string; href: string }[];
+  // Legacy socials map (kept for migration)
   socials?: Partial<
     Record<
       "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "github",
       string
     >
   >;
+  // Legacy order (kept for migration)
   socialOrder?: (
     | "facebook"
     | "twitter"
@@ -94,6 +122,11 @@ export type FooterConfig = {
     | "github"
   )[];
   background?: BoxBackground;
+  // New unified fields
+  headings?: FooterHeadings;
+  linksByColumn?: FooterLinksByColumn;
+  socialIcons?: FooterSocialItem[];
+  colors?: FooterColors;
 };
 export type ThemeConfig = {
   brand: string;
@@ -181,9 +214,102 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
         : b.modalStyle,
     } as Box;
   });
+
+  // Footer migrations and defaults
+  const footer = { ...(data.footer || ({} as any)) } as FooterConfig;
+
+  // Headings default
+  if (!footer.headings) {
+    footer.headings = {
+      about: { title: "About", enabled: true },
+      quick: { title: "Quick Links", enabled: true },
+      contact: { title: "Contact", enabled: true },
+    };
+  } else {
+    footer.headings = {
+      about: {
+        title: footer.headings.about?.title || "About",
+        enabled: footer.headings.about?.enabled !== false,
+      },
+      quick: {
+        title: footer.headings.quick?.title || "Quick Links",
+        enabled: footer.headings.quick?.enabled !== false,
+      },
+      contact: {
+        title: footer.headings.contact?.title || "Contact",
+        enabled: footer.headings.contact?.enabled !== false,
+      },
+    };
+  }
+
+  // Colors default
+  footer.colors = {
+    textColor: fix(footer.colors?.textColor) || "#ffffff",
+    linkColor: fix(footer.colors?.linkColor) || "#ffffff",
+    iconColor: fix(footer.colors?.iconColor) || "#ffffff",
+  };
+
+  // Links by column migration
+  if (!footer.linksByColumn) {
+    const legacy = footer.links || [];
+    footer.linksByColumn = {
+      about: [],
+      quick: legacy.map((l) => ({ text: l.label, url: l.href, enabled: true })),
+      contact: [],
+    };
+  } else {
+    const normalize = (items?: FooterLinkItem[]) =>
+      (items || []).map((it) => ({
+        text: it.text || (it as any).label || "",
+        url: it.url || (it as any).href || "#",
+        enabled: it.enabled !== false,
+      }));
+    footer.linksByColumn = {
+      about: normalize(footer.linksByColumn.about),
+      quick: normalize(footer.linksByColumn.quick),
+      contact: normalize(footer.linksByColumn.contact),
+    };
+  }
+
+  // Social icons migration
+  if (!footer.socialIcons) {
+    const platforms: FooterSocialItem["platform"][] = [
+      "facebook",
+      "twitter",
+      "instagram",
+      "linkedin",
+      "youtube",
+      "github",
+    ];
+    const orderList = footer.socialOrder && footer.socialOrder.length > 0 ? footer.socialOrder : platforms;
+    const map = footer.socials || {};
+    footer.socialIcons = orderList.map((p, idx) => ({
+      platform: p,
+      url: (map as any)[p] || "",
+      icon: p,
+      order: idx,
+      enabled: Boolean((map as any)[p]),
+    }));
+  } else {
+    footer.socialIcons = (footer.socialIcons || [])
+      .map((s, idx) => ({
+        platform: s.platform || s.icon || "",
+        url: s.url || "",
+        icon: s.icon || s.platform || "",
+        order: typeof s.order === "number" ? s.order : idx,
+        enabled: s.enabled !== false && Boolean(s.url),
+      }))
+      .sort((a, b) => a.order - b.order);
+  }
+
+  const nextFooter: FooterConfig = {
+    ...footer,
+  };
+
   return {
     ...data,
     boxes,
+    footer: nextFooter,
     theme: {
       ...theme,
       brand: fix(theme.brand),
@@ -398,6 +524,7 @@ const DEFAULTS: SiteConfig = {
     socials: {},
     socialOrder: ["facebook", "twitter", "instagram", "linkedin"],
     background: { kind: "color", color: "#0a0a0a" },
+    // new fields will be filled by sanitizeConfig
   },
   theme: {
     brand: "#0ea5e9",
