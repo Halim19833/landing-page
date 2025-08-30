@@ -75,10 +75,11 @@ function Box({ id }: BoxProps) {
               {box.title}
             </div>
             <div className="mt-3 flex items-center gap-2">
-              {(box.ctaMode === "button" ||
-                box.ctaMode === "both" ||
-                !box.ctaMode) && (
-                <span className="inline-flex items-center px-3 py-2 text-sm rounded-md bg-brand-600 text-white shadow group-hover:bg-brand-500 transition-colors">
+              {((box.ctaMode === "button" || box.ctaMode === "both" || !box.ctaMode) && box.showButton !== false) && (
+                <span
+                  className="inline-flex items-center px-3 py-2 text-sm rounded-md text-white shadow transition-colors"
+                  style={{ backgroundColor: box.buttonColor || state.theme.brand }}
+                >
                   {box.buttonLabel || "Read More"}
                 </span>
               )}
