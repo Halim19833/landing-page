@@ -1,4 +1,16 @@
 import { useSiteConfig } from "@/state/site-config";
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminSection,
+  AdminButton,
+  AdminIconButton,
+  AdminFormGroup,
+  AdminInput,
+  AdminTextarea,
+  AdminSelect,
+} from "@/components/admin/AdminUI";
+import { Image as ImageIcon, Plus, Trash2, Eye, EyeOff } from "lucide-react";
 
 function readFileAsDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -70,9 +82,7 @@ function BackgroundControls({
             />
             <select
               value={value.direction || "to bottom"}
-              onChange={(e) =>
-                onChange({ ...value, direction: e.target.value })
-              }
+              onChange={(e) => onChange({ ...value, direction: e.target.value })}
               className="border rounded px-2 py-1 text-sm"
             >
               <option value="to top">to top</option>
@@ -89,11 +99,7 @@ function BackgroundControls({
         {value?.kind === "image" && (
           <div className="space-y-2 w-full">
             {value.url && (
-              <img
-                src={value.url}
-                alt="bg"
-                className="h-14 w-24 object-cover rounded"
-              />
+              <img src={value.url} alt="bg" className="h-14 w-24 object-cover rounded" />
             )}
             <label className="text-xs px-2 py-1 rounded bg-neutral-800 text-white cursor-pointer inline-block">
               Upload Background
@@ -121,9 +127,7 @@ function BackgroundControls({
                 min={50}
                 max={200}
                 value={value.scale || 100}
-                onChange={(e) =>
-                  onChange({ ...value, scale: Number(e.target.value) })
-                }
+                onChange={(e) => onChange({ ...value, scale: Number(e.target.value) })}
               />
             </div>
             <div className="flex items-center gap-2">
@@ -134,18 +138,14 @@ function BackgroundControls({
                 max={1}
                 step={0.05}
                 value={value.opacity ?? 1}
-                onChange={(e) =>
-                  onChange({ ...value, opacity: Number(e.target.value) })
-                }
+                onChange={(e) => onChange({ ...value, opacity: Number(e.target.value) })}
               />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs w-16">Adjust</span>
               <select
                 value={value.overlay || "none"}
-                onChange={(e) =>
-                  onChange({ ...value, overlay: e.target.value })
-                }
+                onChange={(e) => onChange({ ...value, overlay: e.target.value })}
                 className="border rounded px-2 py-1 text-sm"
               >
                 <option value="none">None</option>
@@ -159,10 +159,7 @@ function BackgroundControls({
                 step={0.05}
                 value={value.overlayStrength ?? 0.4}
                 onChange={(e) =>
-                  onChange({
-                    ...value,
-                    overlayStrength: Number(e.target.value),
-                  })
+                  onChange({ ...value, overlayStrength: Number(e.target.value) })
                 }
               />
             </div>
@@ -175,12 +172,14 @@ function BackgroundControls({
 
 export function HeaderAdmin() {
   const { state, set } = useSiteConfig();
+
   const uploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
     const url = await readFileAsDataURL(f);
     set({ header: { ...state.header, logoUrl: url } });
   };
+
   const addLang = () =>
     set({
       header: {
@@ -188,16 +187,11 @@ export function HeaderAdmin() {
         languages: [...(state.header.languages || []), { code: "", label: "" }],
       },
     });
-  const updateLang = (
-    i: number,
-    patch: Partial<{ code: string; label: string }>,
-  ) =>
+  const updateLang = (i: number, patch: Partial<{ code: string; label: string }>) =>
     set({
       header: {
         ...state.header,
-        languages: state.header.languages.map((l, idx) =>
-          idx === i ? { ...l, ...patch } : l,
-        ),
+        languages: state.header.languages.map((l, idx) => (idx === i ? { ...l, ...patch } : l)),
       },
     });
   const removeLang = (i: number) =>
@@ -207,98 +201,88 @@ export function HeaderAdmin() {
         languages: state.header.languages.filter((_, idx) => idx !== i),
       },
     });
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Header</h2>
-      <div className="grid sm:grid-cols-3 gap-3">
-        <input
-          value={state.header.logoText}
-          onChange={(e) =>
-            set({ header: { ...state.header, logoText: e.target.value } })
-          }
-          className="border rounded px-2 py-1"
-          placeholder="Logo text"
-        />
-        <input
-          value={state.header.languageText}
-          onChange={(e) =>
-            set({ header: { ...state.header, languageText: e.target.value } })
-          }
-          className="border rounded px-2 py-1"
-          placeholder="Language label"
-        />
-        <input
-          value={state.header.contactText}
-          onChange={(e) =>
-            set({ header: { ...state.header, contactText: e.target.value } })
-          }
-          className="border rounded px-2 py-1"
-          placeholder="Contact text"
-        />
-      </div>
-      <div className="flex items-center gap-3">
-        {state.header.logoUrl && (
-          <img
-            src={state.header.logoUrl}
-            alt="logo"
-            className="h-10 w-10 object-contain"
-          />
-        )}
-        <label className="text-sm px-3 py-2 rounded-md bg-neutral-800 text-white cursor-pointer">
-          Upload Logo
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={uploadLogo}
-          />
-        </label>
-      </div>
-      <BackgroundControls
-        value={state.header.background}
-        onChange={(v) => set({ header: { ...state.header, background: v } })}
-      />
-      <div>
-        <div className="mb-2 font-medium">Languages</div>
-        <div className="space-y-2">
-          {state.header.languages?.map((l, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <input
-                value={l.code}
-                onChange={(e) => updateLang(i, { code: e.target.value })}
-                className="border rounded px-2 py-1 text-sm w-24"
-                placeholder="code"
-              />
-              <input
-                value={l.label}
-                onChange={(e) => updateLang(i, { label: e.target.value })}
-                className="border rounded px-2 py-1 text-sm"
-                placeholder="label"
-              />
-              <button
-                onClick={() =>
-                  set({ header: { ...state.header, selectedLang: l.code } })
-                }
-                className="text-xs px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200"
-              >
-                Set Default
-              </button>
-              <button
-                onClick={() => removeLang(i)}
-                className="text-xs px-2 py-1 rounded bg-red-100 hover:bg-red-200"
-              >
-                Delete
-              </button>
-            </div>
-          ))}
+    <div className="space-y-8">
+      <AdminPageHeader title="Header" description="Manage site logo, labels, languages, and header background." />
+
+      <AdminCard className="space-y-6">
+        <div className="grid sm:grid-cols-3 gap-4">
+          <AdminFormGroup label="Logo Text">
+            <AdminInput
+              value={state.header.logoText}
+              onChange={(e) => set({ header: { ...state.header, logoText: e.target.value } })}
+              placeholder="Logo text"
+            />
+          </AdminFormGroup>
+          <AdminFormGroup label="Language Label">
+            <AdminInput
+              value={state.header.languageText}
+              onChange={(e) => set({ header: { ...state.header, languageText: e.target.value } })}
+              placeholder="Language label"
+            />
+          </AdminFormGroup>
+          <AdminFormGroup label="Contact Text">
+            <AdminInput
+              value={state.header.contactText}
+              onChange={(e) => set({ header: { ...state.header, contactText: e.target.value } })}
+              placeholder="Contact text"
+            />
+          </AdminFormGroup>
         </div>
-        <button
-          onClick={addLang}
-          className="mt-2 text-sm px-3 py-2 rounded-md bg-neutral-800 text-white"
-        >
-          Add Language
-        </button>
-      </div>
+
+        <div className="flex items-center gap-3">
+          {state.header.logoUrl && (
+            <img src={state.header.logoUrl} alt="logo" className="h-10 w-10 object-contain rounded" />
+          )}
+          <label className="inline-flex items-center">
+            <input type="file" accept="image/*" className="hidden" onChange={uploadLogo} />
+            <AdminButton className="cursor-pointer">
+              <ImageIcon className="h-4 w-4 mr-2" /> Upload Logo
+            </AdminButton>
+          </label>
+        </div>
+
+        <BackgroundControls
+          value={state.header.background}
+          onChange={(v) => set({ header: { ...state.header, background: v } })}
+        />
+
+        <AdminSection title="Languages" description="Manage available languages and select the default.">
+          <div className="space-y-2">
+            {state.header.languages?.map((l, i) => (
+              <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <AdminInput
+                  value={l.code}
+                  onChange={(e) => updateLang(i, { code: e.target.value })}
+                  placeholder="code"
+                  className="sm:w-24"
+                />
+                <AdminInput
+                  value={l.label}
+                  onChange={(e) => updateLang(i, { label: e.target.value })}
+                  placeholder="label"
+                />
+                <div className="flex items-center gap-1">
+                  <AdminButton
+                    size="small"
+                    variant="secondary"
+                    onClick={() => set({ header: { ...state.header, selectedLang: l.code } })}
+                  >
+                    Set Default
+                  </AdminButton>
+                  <AdminIconButton variant="danger" size="small" onClick={() => removeLang(i)}>
+                    <Trash2 className="h-3 w-3" />
+                  </AdminIconButton>
+                </div>
+              </div>
+            ))}
+            <AdminButton size="small" onClick={addLang}>
+              <Plus className="h-4 w-4 mr-2" /> Add Language
+            </AdminButton>
+          </div>
+        </AdminSection>
+      </AdminCard>
     </div>
   );
 }
@@ -312,22 +296,12 @@ export function FooterAdmin() {
         socials: { ...(state.footer.socials || {}), [k]: v },
         text: state.footer.text,
         extraText: state.footer.extraText,
-        socialOrder: state.footer.socialOrder || [
-          "facebook",
-          "twitter",
-          "instagram",
-          "linkedin",
-        ],
+        socialOrder: state.footer.socialOrder || ["facebook", "twitter", "instagram", "linkedin"],
       },
     });
   const reorder = (k: string, dir: -1 | 1) => {
     const order = [
-      ...(state.footer.socialOrder || [
-        "facebook",
-        "twitter",
-        "instagram",
-        "linkedin",
-      ]),
+      ...(state.footer.socialOrder || ["facebook", "twitter", "instagram", "linkedin"]),
     ];
     const idx = order.indexOf(k);
     if (idx === -1) return;
@@ -337,134 +311,116 @@ export function FooterAdmin() {
     set({ footer: { ...state.footer, socialOrder: order } });
   };
   return (
-    <div className="space-y-3">
-      <h2 className="text-xl font-semibold">Footer</h2>
-      <label className="block text-sm">Copyright</label>
-      <textarea
-        value={state.footer.text}
-        onChange={(e) =>
-          set({ footer: { ...state.footer, text: e.target.value } })
-        }
-        className="w-full border rounded px-2 py-2"
-      />
-      <label className="block text-sm">Extra Text</label>
-      <input
-        value={state.footer.extraText || ""}
-        onChange={(e) =>
-          set({ footer: { ...state.footer, extraText: e.target.value } })
-        }
-        className="w-full border rounded px-2 py-1"
-      />
-      <div className="grid sm:grid-cols-2 gap-3">
-        {(
-          [
-            "facebook",
-            "twitter",
-            "instagram",
-            "linkedin",
-            "github",
-            "youtube",
-          ] as const
-        ).map((k) => (
-          <div key={k} className="flex items-center gap-2">
-            <label className="w-24 text-sm capitalize">{k}</label>
-            <input
-              value={(state.footer.socials || {})[k] || ""}
-              onChange={(e) => updateSocial(k, e.target.value)}
-              placeholder={`https://${k}.com/...`}
-              className="flex-1 border rounded px-2 py-1"
-            />
-            <div className="flex items-center gap-1">
-              <button
-                className="text-xs px-2 py-1 rounded bg-neutral-100"
-                onClick={() => reorder(k, -1)}
-              >
-                ↑
-              </button>
-              <button
-                className="text-xs px-2 py-1 rounded bg-neutral-100"
-                onClick={() => reorder(k, 1)}
-              >
-                ↓
-              </button>
-            </div>
+    <div className="space-y-8">
+      <AdminPageHeader title="Footer" description="Manage footer content, social links, and background." />
+
+      <AdminCard className="space-y-6">
+        <AdminFormGroup label="Copyright">
+          <AdminTextarea
+            value={state.footer.text}
+            onChange={(e) => set({ footer: { ...state.footer, text: e.target.value } })}
+          />
+        </AdminFormGroup>
+        <AdminFormGroup label="Extra Text">
+          <AdminInput
+            value={state.footer.extraText || ""}
+            onChange={(e) => set({ footer: { ...state.footer, extraText: e.target.value } })}
+          />
+        </AdminFormGroup>
+
+        <AdminSection title="Social Links" description="Add links and control their order.">
+          <div className="grid sm:grid-cols-2 gap-3">
+            {(["facebook", "twitter", "instagram", "linkedin", "github", "youtube"] as const).map(
+              (k) => (
+                <div key={k} className="flex items-center gap-2">
+                  <label className="w-24 text-sm capitalize">{k}</label>
+                  <AdminInput
+                    value={(state.footer.socials || {})[k] || ""}
+                    onChange={(e) => updateSocial(k, e.target.value)}
+                    placeholder={`https://${k}.com/...`}
+                    className="flex-1"
+                  />
+                  <div className="flex items-center gap-1">
+                    <AdminButton size="small" variant="secondary" onClick={() => reorder(k, -1)}>
+                      ↑
+                    </AdminButton>
+                    <AdminButton size="small" variant="secondary" onClick={() => reorder(k, 1)}>
+                      ↓
+                    </AdminButton>
+                  </div>
+                </div>
+              ),
+            )}
           </div>
-        ))}
-      </div>
-      <BackgroundControls
-        value={state.footer.background}
-        onChange={(v) => set({ footer: { ...state.footer, background: v } })}
-      />
+        </AdminSection>
+
+        <BackgroundControls
+          value={state.footer.background}
+          onChange={(v) => set({ footer: { ...state.footer, background: v } })}
+        />
+      </AdminCard>
     </div>
   );
 }
 
 export function ColorsAdmin() {
   const { state, set } = useSiteConfig();
-  const updateTheme = (patch: any) =>
-    set({ theme: { ...state.theme, ...patch } });
+  const updateTheme = (patch: any) => set({ theme: { ...state.theme, ...patch } });
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Colors</h2>
-      <div className="flex items-center gap-3">
-        <label className="text-sm w-48">Brand</label>
-        <input
-          type="color"
-          value={state.theme.brand}
-          onChange={(e) => updateTheme({ brand: e.target.value })}
-        />
-      </div>
-      <div className="flex items-center gap-3">
-        <label className="text-sm w-48">Global Page Background</label>
-        <input
-          type="text"
-          value={state.theme.pageBg || ""}
-          onChange={(e) => updateTheme({ pageBg: e.target.value })}
-          className="border rounded px-2 py-1 flex-1"
-          placeholder="#ffffff or linear-gradient(...)"
-        />
-      </div>
-      <div className="flex items-center gap-3">
-        <label className="text-sm w-48">Boxes Section Background</label>
-        <input
-          type="text"
-          value={state.theme.boxesSectionBg || ""}
-          onChange={(e) => updateTheme({ boxesSectionBg: e.target.value })}
-          className="border rounded px-2 py-1 flex-1"
-          placeholder="color or gradient"
-        />
-      </div>
-      <div className="flex items-center gap-3">
-        <label className="text-sm w-48">Logos Section Background</label>
-        <input
-          type="text"
-          value={state.theme.logosSectionBg || ""}
-          onChange={(e) => updateTheme({ logosSectionBg: e.target.value })}
-          className="border rounded px-2 py-1 flex-1"
-        />
-      </div>
-      <div className="flex items-center gap-3">
-        <label className="text-sm w-48">Contact Section Background</label>
-        <input
-          type="text"
-          value={state.theme.contactSectionBg || ""}
-          onChange={(e) => updateTheme({ contactSectionBg: e.target.value })}
-          className="border rounded px-2 py-1 flex-1"
-        />
-      </div>
-      <div className="flex items-center gap-3">
-        <label className="text-sm w-48">Default Box Background</label>
-        <input
-          type="text"
-          value={state.theme.boxDefaultBg || ""}
-          onChange={(e) => updateTheme({ boxDefaultBg: e.target.value })}
-          className="border rounded px-2 py-1 flex-1"
-        />
-      </div>
-      <p className="text-sm text-neutral-600">
-        Supports hex colors or CSS gradients (e.g., linear-gradient(...)). All
-        updates apply live.
-      </p>
+    <div className="space-y-8">
+      <AdminPageHeader title="Colors & Theme" description="Edit theme brand color and section backgrounds." />
+      <AdminCard className="space-y-4">
+        <div className="grid gap-4">
+          <div className="flex items-center gap-3">
+            <label className="text-sm w-48">Brand</label>
+            <input type="color" value={state.theme.brand} onChange={(e) => updateTheme({ brand: e.target.value })} />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm w-48">Global Page Background</label>
+            <AdminInput
+              value={state.theme.pageBg || ""}
+              onChange={(e) => updateTheme({ pageBg: e.target.value })}
+              placeholder="#ffffff or linear-gradient(...)"
+              className="flex-1"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm w-48">Boxes Section Background</label>
+            <AdminInput
+              value={state.theme.boxesSectionBg || ""}
+              onChange={(e) => updateTheme({ boxesSectionBg: e.target.value })}
+              className="flex-1"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm w-48">Logos Section Background</label>
+            <AdminInput
+              value={state.theme.logosSectionBg || ""}
+              onChange={(e) => updateTheme({ logosSectionBg: e.target.value })}
+              className="flex-1"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm w-48">Contact Section Background</label>
+            <AdminInput
+              value={state.theme.contactSectionBg || ""}
+              onChange={(e) => updateTheme({ contactSectionBg: e.target.value })}
+              className="flex-1"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm w-48">Default Box Background</label>
+            <AdminInput
+              value={state.theme.boxDefaultBg || ""}
+              onChange={(e) => updateTheme({ boxDefaultBg: e.target.value })}
+              className="flex-1"
+            />
+          </div>
+          <p className="text-sm text-neutral-600">
+            Supports hex colors or CSS gradients (e.g., linear-gradient(...)). All updates apply live.
+          </p>
+        </div>
+      </AdminCard>
     </div>
   );
 }
@@ -473,78 +429,73 @@ export function SettingsAdmin() {
   const { state, set } = useSiteConfig();
   const s = state.settings || {};
   const update = (patch: any) => set({ settings: { ...s, ...patch } });
-  const setPad =
-    (k: keyof NonNullable<typeof s.sectionPadding>) => (v: number) =>
-      update({ sectionPadding: { ...(s.sectionPadding || {}), [k]: v } });
+  const setPad = (k: keyof NonNullable<typeof s.sectionPadding>) => (v: number) =>
+    update({ sectionPadding: { ...(s.sectionPadding || {}), [k]: v } });
   const setBox = (k: keyof NonNullable<typeof s.boxHeights>) => (v: number) =>
-    update({
-      boxHeights: {
-        ...(s.boxHeights || { small: 200, medium: 200, large: 280 }),
-        [k]: v,
-      },
-    });
+    update({ boxHeights: { ...(s.boxHeights || { small: 200, medium: 200, large: 280 }), [k]: v } });
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Settings</h2>
-      <div className="space-y-2">
-        <div className="font-medium">Section Padding (px)</div>
-        {(["hero", "boxes", "logos", "contact"] as const).map((k) => (
-          <div key={k} className="flex items-center gap-3">
-            <label className="w-24 text-sm capitalize">{k}</label>
-            <input
-              type="range"
-              min={0}
-              max={96}
-              value={(s.sectionPadding || {})[k] || 24}
-              onChange={(e) => setPad(k)(Number(e.target.value))}
-            />
-            <input
-              type="number"
-              className="w-20 border rounded px-2 py-1 text-sm"
-              value={(s.sectionPadding || {})[k] || 24}
-              onChange={(e) => setPad(k)(Number(e.target.value))}
-            />
+    <div className="space-y-8">
+      <AdminPageHeader title="Settings" description="Site paddings, default box heights and contact email." />
+
+      <AdminCard className="space-y-6">
+        <AdminSection title="Section Padding (px)" description="Fine-tune spacing for each section.">
+          <div className="space-y-3">
+            {(["hero", "boxes", "logos", "contact"] as const).map((k) => (
+              <div key={k} className="flex items-center gap-3">
+                <label className="w-24 text-sm capitalize">{k}</label>
+                <input
+                  type="range"
+                  min={0}
+                  max={96}
+                  value={(s.sectionPadding || {})[k] || 24}
+                  onChange={(e) => setPad(k)(Number(e.target.value))}
+                />
+                <AdminInput
+                  type="number"
+                  className="w-24"
+                  value={(s.sectionPadding || {})[k] || 24}
+                  onChange={(e) => setPad(k)(Number(e.target.value))}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="space-y-2">
-        <div className="font-medium">Default Box Heights (px)</div>
-        {(["small", "medium", "large"] as const).map((k) => (
-          <div key={k} className="flex items-center gap-3">
-            <label className="w-24 text-sm capitalize">{k}</label>
-            <input
-              type="range"
-              min={120}
-              max={600}
-              value={
-                (s.boxHeights || { small: 200, medium: 200, large: 280 })[k]
-              }
-              onChange={(e) => setBox(k)(Number(e.target.value))}
-            />
-            <input
-              type="number"
-              className="w-20 border rounded px-2 py-1 text-sm"
-              value={
-                (s.boxHeights || { small: 200, medium: 200, large: 280 })[k]
-              }
-              onChange={(e) => setBox(k)(Number(e.target.value))}
-            />
+        </AdminSection>
+
+        <AdminSection title="Default Box Heights (px)">
+          <div className="space-y-3">
+            {(["small", "medium", "large"] as const).map((k) => (
+              <div key={k} className="flex items-center gap-3">
+                <label className="w-24 text-sm capitalize">{k}</label>
+                <input
+                  type="range"
+                  min={120}
+                  max={600}
+                  value={(s.boxHeights || { small: 200, medium: 200, large: 280 })[k]}
+                  onChange={(e) => setBox(k)(Number(e.target.value))}
+                />
+                <AdminInput
+                  type="number"
+                  className="w-24"
+                  value={(s.boxHeights || { small: 200, medium: 200, large: 280 })[k]}
+                  onChange={(e) => setBox(k)(Number(e.target.value))}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="space-y-2">
-        <label className="text-sm">Contact recipient email</label>
-        <input
-          value={s.contactEmail || ""}
-          onChange={(e) => update({ contactEmail: e.target.value })}
-          className="border rounded px-2 py-1"
-          placeholder="you@company.com"
-        />
-      </div>
-      <p className="text-sm text-neutral-600">
-        Local Storage is used in this demo. Connect a database later for
-        persistence.
-      </p>
+        </AdminSection>
+
+        <AdminFormGroup label="Contact recipient email">
+          <AdminInput
+            value={s.contactEmail || ""}
+            onChange={(e) => update({ contactEmail: e.target.value })}
+            placeholder="you@company.com"
+          />
+        </AdminFormGroup>
+        <div className="text-sm text-neutral-600">
+          Local Storage is used in this demo. Connect a database later for persistence.
+        </div>
+      </AdminCard>
     </div>
   );
 }
