@@ -10,21 +10,36 @@ export default function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   useEffect(() => {
     let stop = false;
+    let apiOk = true;
+    let cooldown: any = null;
+
     const load = async () => {
+      if (!apiOk || stop) return;
       try {
-        const res = await fetch("/api/messages");
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), 4000);
+        const res = await fetch("/api/messages", { signal: controller.signal });
+        clearTimeout(t);
+        if (!res.ok) throw new Error("bad status");
         const data = await res.json();
         if (!stop)
           setCount((data.items || []).filter((m: any) => !m.read).length);
       } catch {
         if (!stop) setCount(0);
+        apiOk = false;
+        if (cooldown) clearTimeout(cooldown);
+        cooldown = setTimeout(() => {
+          apiOk = true;
+        }, 30000);
       }
     };
+
     load();
     const id = setInterval(load, 5000);
     return () => {
       stop = true;
       clearInterval(id);
+      if (cooldown) clearTimeout(cooldown);
     };
   }, []);
   useEffect(() => {
