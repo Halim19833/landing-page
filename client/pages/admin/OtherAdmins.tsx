@@ -289,7 +289,8 @@ export function HeaderAdmin() {
 
 export function FooterAdmin() {
   const { state, set } = useSiteConfig();
-  const updateSocial = (k: string, v: string) =>
+  type SocialKey = "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "github";
+  const updateSocial = (k: SocialKey, v: string) =>
     set({
       footer: {
         ...state.footer,
@@ -299,10 +300,10 @@ export function FooterAdmin() {
         socialOrder: state.footer.socialOrder || ["facebook", "twitter", "instagram", "linkedin"],
       },
     });
-  const reorder = (k: string, dir: -1 | 1) => {
+  const reorder = (k: SocialKey, dir: -1 | 1) => {
     const order = [
       ...(state.footer.socialOrder || ["facebook", "twitter", "instagram", "linkedin"]),
-    ];
+    ] as SocialKey[];
     const idx = order.indexOf(k);
     if (idx === -1) return;
     const ni = Math.min(order.length - 1, Math.max(0, idx + dir));
