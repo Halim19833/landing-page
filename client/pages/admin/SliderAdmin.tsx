@@ -1,5 +1,13 @@
 import { useSiteConfig } from "@/state/site-config";
 import { useState } from "react";
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminButton,
+  AdminIconButton,
+  AdminInput,
+} from "@/components/admin/AdminUI";
+import { GripVertical, Eye, EyeOff, Trash2, Images } from "lucide-react";
 
 function readFileAsDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -41,66 +49,103 @@ export default function SliderAdmin() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Slider Management</h2>
-        <label className="text-sm px-3 py-2 rounded-md bg-neutral-800 text-white cursor-pointer">
-          Upload Slide
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={addSlide}
-          />
-        </label>
-      </div>
-      <div className="grid gap-4">
+    <div className="space-y-8">
+      <AdminPageHeader
+        title="Hero Slider"
+        description="Upload, reorder, and manage the slides shown in the homepage hero."
+        action={
+          <label className="inline-flex items-center">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={addSlide}
+            />
+            <AdminButton className="cursor-pointer">
+              <Images className="h-4 w-4 mr-2" /> Upload Slide
+            </AdminButton>
+          </label>
+        }
+      />
+
+      {state.slides.length === 0 && (
+        <AdminCard className="text-sm text-gray-600">
+          No slides yet. Click "Upload Slide" to add your first image.
+        </AdminCard>
+      )}
+
+      <div className="space-y-4">
         {state.slides.map((s, i) => (
-          <div
+          <AdminCard
             key={s.id}
-            className="flex items-center gap-4 bg-white p-3 rounded-md border"
-            draggable
-            onDragStart={() => onDragStart(i)}
+            className="relative"
             onDragOver={(e) => e.preventDefault()}
             onDrop={() => onDrop(i)}
           >
-            <img
-              src={s.url}
-              alt="slide"
-              className="h-16 w-28 object-cover rounded"
-            />
-            <div className="flex-1">
-              <input
-                value={s.alt || ""}
-                onChange={(e) =>
-                  set({
-                    slides: state.slides.map((x) =>
-                      x.id === s.id ? { ...x, alt: e.target.value } : x,
-                    ),
-                  })
-                }
-                placeholder="Alt text"
-                className="border rounded px-2 py-1 text-sm w-full"
+            <div className="flex items-center gap-4">
+              <span
+                title="Drag to reorder"
+                className="cursor-grab inline-flex items-center justify-center h-9 w-9 rounded-lg bg-gray-100"
+                draggable
+                onDragStart={() => onDragStart(i)}
+              >
+                <GripVertical className="h-4 w-4 text-gray-600" />
+              </span>
+
+              <img
+                src={s.url}
+                alt={s.alt || "slide preview"}
+                className="h-16 w-28 object-cover rounded-lg border"
               />
+
+              <div className="flex-1 grid gap-2 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <AdminInput
+                    value={s.alt || ""}
+                    onChange={(e) =>
+                      set({
+                        slides: state.slides.map((x) =>
+                          x.id === s.id ? { ...x, alt: e.target.value } : x,
+                        ),
+                      })
+                    }
+                    placeholder="Alt text for accessibility"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <AdminIconButton
+                  variant="secondary"
+                  size="small"
+                  onClick={() => toggle(s.id)}
+                  title={s.hidden ? "Show slide" : "Hide slide"}
+                >
+                  {s.hidden ? (
+                    <Eye className="h-3 w-3" />
+                  ) : (
+                    <EyeOff className="h-3 w-3" />
+                  )}
+                </AdminIconButton>
+                <AdminIconButton
+                  variant="danger"
+                  size="small"
+                  onClick={() => remove(s.id)}
+                  title="Delete slide"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </AdminIconButton>
+              </div>
             </div>
-            <button
-              onClick={() => toggle(s.id)}
-              className="text-xs px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200"
-            >
-              {s.hidden ? "Show" : "Hide"}
-            </button>
-            <button
-              onClick={() => remove(s.id)}
-              className="text-xs px-2 py-1 rounded bg-red-100 hover:bg-red-200"
-            >
-              Delete
-            </button>
-          </div>
+          </AdminCard>
         ))}
       </div>
-      <div className="text-sm text-neutral-600">
-        Drag items to reorder. Changes are saved instantly.
-      </div>
+
+      {state.slides.length > 0 && (
+        <div className="text-sm text-neutral-600">
+          Drag using the handle to reorder. Changes are saved instantly.
+        </div>
+      )}
     </div>
   );
 }
