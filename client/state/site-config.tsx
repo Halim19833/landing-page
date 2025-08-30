@@ -560,6 +560,7 @@ const DEFAULTS: SiteConfig = {
     background: { kind: "color", color: "#0a0a0a" },
     // new fields will be filled by sanitizeConfig
   },
+  slider: { widthPercent: 100, height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 } },
   theme: {
     brand: "#0ea5e9",
     pageBg: "#ffffff",
