@@ -166,6 +166,14 @@ export type SliderConfig = {
   };
 };
 
+export type BoxesGridConfig = {
+  columns: { mobile: number; tablet: number; desktop: number };
+  columnWidth?: { mobile: number; tablet: number; desktop: number }; // px
+  gap?: { mobile: number; tablet: number; desktop: number }; // px
+  columnColor?: string;
+  showColumnColor?: boolean;
+};
+
 export type SiteConfig = {
   header: HeaderConfig;
   slides: Slide[];
@@ -175,6 +183,7 @@ export type SiteConfig = {
   theme: ThemeConfig;
   settings?: SettingsConfig;
   slider?: SliderConfig;
+  boxesGrid?: BoxesGridConfig;
 };
 
 function expandShortHex(hex?: string | null): string | undefined {
