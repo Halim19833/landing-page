@@ -8,6 +8,24 @@ export default function HeroSlider() {
   const images = state.slides.filter((s) => !s.hidden);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [sliderHeight, setSliderHeight] = useState<string>("400px");
+
+  useEffect(() => {
+    const compute = () => {
+      const cfg = state.slider || { widthPercent: 100, height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 } };
+      const w = window.innerWidth;
+      const bpMobile = 768;
+      const bpTablet = 1024;
+      let val = cfg.height.desktop;
+      if (w < bpMobile) val = cfg.height.mobile;
+      else if (w < bpTablet) val = cfg.height.tablet;
+      const h = cfg.height.unit === "vh" ? `${val}vh` : `${val}px`;
+      setSliderHeight(h);
+    };
+    compute();
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, [state.slider]);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -32,6 +50,8 @@ export default function HeroSlider() {
     [emblaApi],
   );
 
+  const widthPercent = state.slider?.widthPercent ?? 100;
+
   return (
     <section
       className="mx-auto max-w-[1200px] px-6 mt-6"
@@ -40,7 +60,7 @@ export default function HeroSlider() {
         paddingBottom: state.settings?.sectionPadding?.hero ?? 24,
       }}
     >
-      <div className="relative">
+      <div className="relative" style={{ width: `${widthPercent}%`, margin: "0 auto" }}>
         <button
           aria-label="Previous"
           onClick={scrollPrev}
@@ -55,10 +75,7 @@ export default function HeroSlider() {
         >
           <ChevronRight className="h-5 w-5" />
         </button>
-        <div
-          ref={emblaRef}
-          className="overflow-hidden rounded-[20px] h-[250px] sm:h-[320px] md:h-[400px]"
-        >
+        <div ref={emblaRef} className="overflow-hidden rounded-[20px]" style={{ height: sliderHeight }}>
           <div className="flex h-full">
             {images.map((img) => (
               <div
