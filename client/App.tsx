@@ -108,4 +108,11 @@ const App = () => (
   </QueryClientProvider>
 );
 
-createRoot(document.getElementById("root")!).render(<App />);
+const container = document.getElementById("root")!;
+// Reuse existing root across HMR to avoid double createRoot and DOM detach errors
+// Store on window to persist between module reloads
+const w = window as any;
+if (!w.__fusionRoot) {
+  w.__fusionRoot = createRoot(container);
+}
+w.__fusionRoot.render(<App />);
