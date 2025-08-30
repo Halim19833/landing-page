@@ -220,6 +220,17 @@ function BoxEditorSheet({ boxId, onClose }: { boxId: string; onClose: () => void
             </AdminFormGroup>
           </div>
           <div className="grid grid-cols-3 gap-3">
+            <AdminFormGroup label="Show Button">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={draft.showButton !== false} onChange={(e) => setField({ showButton: e.target.checked })} />
+                Visible
+              </label>
+            </AdminFormGroup>
+            <AdminFormGroup label="Button Color">
+              <input type="color" value={expandShortHex(draft.buttonColor) || expandShortHex(state.theme.brand) || "#0ea5e9"} onChange={(e) => setField({ buttonColor: e.target.value })} />
+            </AdminFormGroup>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
             {(["mobile","tablet","desktop"] as const).map((bp) => (
               <AdminFormGroup key={bp} label={`Span ${bp}`}>
                 <AdminInput type="number" min={1} max={12} value={(draft.gridSpan as any)?.[bp] ?? 1} onChange={(e) => setField({ gridSpan: { ...(draft.gridSpan || { mobile:1, tablet:1, desktop:1 }), [bp]: Number(e.target.value) } })} />
