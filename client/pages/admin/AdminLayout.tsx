@@ -6,8 +6,6 @@ import {
   Box,
   Building2,
   MessageSquare,
-  LayoutPanelTop,
-  LayoutPanelBottom,
   Palette,
   Settings,
   Menu,
@@ -125,13 +123,13 @@ export default function AdminLayout() {
         {
           to: "/admin/header",
           label: "Header",
-          icon: <LayoutPanelTop className="h-5 w-5" />,
+          icon: <Menu className="h-5 w-5" />,
           description: "Navigation & branding",
         },
         {
           to: "/admin/footer",
           label: "Footer",
-          icon: <LayoutPanelBottom className="h-5 w-5" />,
+          icon: <Home className="h-5 w-5" />,
           description: "Links & social media",
         },
         {
