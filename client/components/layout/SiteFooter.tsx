@@ -10,8 +10,19 @@ import {
 import { useSiteConfig } from "@/state/site-config";
 import { bgStyleFrom } from "@/lib/background";
 
-function IconFor({ name, className, color }: { name: string; className?: string; color?: string }) {
-  const props = { className: className || "h-5 w-5", style: color ? { color } : undefined } as any;
+function IconFor({
+  name,
+  className,
+  color,
+}: {
+  name: string;
+  className?: string;
+  color?: string;
+}) {
+  const props = {
+    className: className || "h-5 w-5",
+    style: color ? { color } : undefined,
+  } as any;
   switch (name) {
     case "facebook":
     case "Facebook":
@@ -45,7 +56,9 @@ export default function SiteFooter() {
   const headings = footer.headings!;
   const colors = footer.colors!;
   const linksBy = footer.linksByColumn!;
-  const socialIcons = (footer.socialIcons || []).filter((s) => s.enabled && s.url).sort((a, b) => a.order - b.order);
+  const socialIcons = (footer.socialIcons || [])
+    .filter((s) => s.enabled && s.url)
+    .sort((a, b) => a.order - b.order);
 
   const textColor = colors.textColor || "#ffffff";
   const linkColor = colors.linkColor || textColor;
@@ -64,22 +77,34 @@ export default function SiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-8">
           {headings.about.enabled && (
             <div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: textColor }}>
+              <h3
+                className="text-lg font-semibold mb-3"
+                style={{ color: textColor }}
+              >
                 {headings.about.title}
               </h3>
-              <p className="text-sm opacity-80 leading-relaxed" style={{ color: textColor }}>
+              <p
+                className="text-sm opacity-80 leading-relaxed"
+                style={{ color: textColor }}
+              >
                 {footer.description ||
                   "We craft reliable web platforms and modern digital experiences with a focus on performance and usability."}
               </p>
               {linksBy.about && linksBy.about.length > 0 && (
                 <ul className="mt-4 space-y-2 text-sm">
-                  {linksBy.about.filter((l) => l.enabled).map((l, idx) => (
-                    <li key={idx}>
-                      <a href={l.url || "#"} style={{ color: linkColor }} className="hover:underline">
-                        {l.text || "Link"}
-                      </a>
-                    </li>
-                  ))}
+                  {linksBy.about
+                    .filter((l) => l.enabled)
+                    .map((l, idx) => (
+                      <li key={idx}>
+                        <a
+                          href={l.url || "#"}
+                          style={{ color: linkColor }}
+                          className="hover:underline"
+                        >
+                          {l.text || "Link"}
+                        </a>
+                      </li>
+                    ))}
                 </ul>
               )}
             </div>
@@ -87,39 +112,53 @@ export default function SiteFooter() {
 
           {headings.quick.enabled && (
             <div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: textColor }}>
+              <h3
+                className="text-lg font-semibold mb-3"
+                style={{ color: textColor }}
+              >
                 {headings.quick.title}
               </h3>
               <ul className="space-y-2 text-sm">
-                {linksBy.quick.filter((l) => l.enabled).map((l, idx) => (
-                  <li key={idx}>
-                    <a
-                      href={l.url || "#"}
-                      style={{ color: linkColor }}
-                      className="opacity-90 hover:opacity-100 hover:underline transition-opacity"
-                    >
-                      {l.text || "Link"}
-                    </a>
-                  </li>
-                ))}
+                {linksBy.quick
+                  .filter((l) => l.enabled)
+                  .map((l, idx) => (
+                    <li key={idx}>
+                      <a
+                        href={l.url || "#"}
+                        style={{ color: linkColor }}
+                        className="opacity-90 hover:opacity-100 hover:underline transition-opacity"
+                      >
+                        {l.text || "Link"}
+                      </a>
+                    </li>
+                  ))}
               </ul>
             </div>
           )}
 
           {headings.contact.enabled && (
             <div>
-              <h3 className="text-lg font-semibold mb-3" style={{ color: textColor }}>
+              <h3
+                className="text-lg font-semibold mb-3"
+                style={{ color: textColor }}
+              >
                 {headings.contact.title}
               </h3>
               {linksBy.contact && linksBy.contact.length > 0 && (
                 <ul className="space-y-2 text-sm mb-4">
-                  {linksBy.contact.filter((l) => l.enabled).map((l, idx) => (
-                    <li key={idx}>
-                      <a href={l.url || "#"} style={{ color: linkColor }} className="hover:underline">
-                        {l.text || "Contact"}
-                      </a>
-                    </li>
-                  ))}
+                  {linksBy.contact
+                    .filter((l) => l.enabled)
+                    .map((l, idx) => (
+                      <li key={idx}>
+                        <a
+                          href={l.url || "#"}
+                          style={{ color: linkColor }}
+                          className="hover:underline"
+                        >
+                          {l.text || "Contact"}
+                        </a>
+                      </li>
+                    ))}
                 </ul>
               )}
 
@@ -146,10 +185,15 @@ export default function SiteFooter() {
         </div>
 
         {/* Footer Bottom */}
-        <div className="border-t pt-6" style={{ borderColor: "rgba(255,255,255,0.2)" }}>
+        <div
+          className="border-t pt-6"
+          style={{ borderColor: "rgba(255,255,255,0.2)" }}
+        >
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm opacity-80">
             <span style={{ color: textColor }}>{state.footer.text}</span>
-            {state.footer.extraText && <span style={{ color: textColor }}>{state.footer.extraText}</span>}
+            {state.footer.extraText && (
+              <span style={{ color: textColor }}>{state.footer.extraText}</span>
+            )}
           </div>
         </div>
       </div>

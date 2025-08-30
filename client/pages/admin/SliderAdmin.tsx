@@ -27,7 +27,10 @@ export default function SliderAdmin() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Local form state for size controls
-  const cfg = state.slider || { widthPercent: 100, height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 } };
+  const cfg = state.slider || {
+    widthPercent: 100,
+    height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 },
+  };
   const [widthPercent, setWidthPercent] = useState<number>(cfg.widthPercent);
   const [unit, setUnit] = useState<"px" | "vh">(cfg.height.unit);
   const [mobileH, setMobileH] = useState<number>(cfg.height.mobile);
@@ -43,11 +46,25 @@ export default function SliderAdmin() {
     setTabletH(s.height.tablet);
     setDesktopH(s.height.desktop);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.slider?.widthPercent, state.slider?.height?.unit, state.slider?.height?.mobile, state.slider?.height?.tablet, state.slider?.height?.desktop]);
+  }, [
+    state.slider?.widthPercent,
+    state.slider?.height?.unit,
+    state.slider?.height?.mobile,
+    state.slider?.height?.tablet,
+    state.slider?.height?.desktop,
+  ]);
 
   const applySize = () => {
-    set({ slider: { widthPercent, height: { unit, mobile: mobileH, tablet: tabletH, desktop: desktopH } } });
-    toast({ title: "Saved", description: "Hero Slider size updated successfully." });
+    set({
+      slider: {
+        widthPercent,
+        height: { unit, mobile: mobileH, tablet: tabletH, desktop: desktopH },
+      },
+    });
+    toast({
+      title: "Saved",
+      description: "Hero Slider size updated successfully.",
+    });
   };
 
   const addSlide = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,13 +130,20 @@ export default function SliderAdmin() {
               <AdminInput
                 type="number"
                 value={widthPercent}
-                onChange={(e) => setWidthPercent(Math.max(50, Math.min(100, Number(e.target.value))))}
+                onChange={(e) =>
+                  setWidthPercent(
+                    Math.max(50, Math.min(100, Number(e.target.value))),
+                  )
+                }
                 className="w-24"
               />
             </div>
           </AdminFormGroup>
           <AdminFormGroup label="Height Unit">
-            <AdminSelect value={unit} onChange={(e) => setUnit(e.target.value as any)}>
+            <AdminSelect
+              value={unit}
+              onChange={(e) => setUnit(e.target.value as any)}
+            >
               <option value="px">Pixels (px)</option>
               <option value="vh">Viewport (vh)</option>
             </AdminSelect>

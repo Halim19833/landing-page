@@ -77,7 +77,14 @@ export type HeaderConfig = {
 
 export type FooterLinkItem = { text: string; url: string; enabled: boolean };
 export type FooterSocialItem = {
-  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "github" | string;
+  platform:
+    | "facebook"
+    | "twitter"
+    | "instagram"
+    | "linkedin"
+    | "youtube"
+    | "github"
+    | string;
   url: string;
   icon: string; // lucide icon name or platform key
   order: number;
@@ -149,7 +156,12 @@ export type SettingsConfig = {
 
 export type SliderConfig = {
   widthPercent: number; // 50 - 100
-  height: { unit: "px" | "vh"; mobile: number; tablet: number; desktop: number };
+  height: {
+    unit: "px" | "vh";
+    mobile: number;
+    tablet: number;
+    desktop: number;
+  };
 };
 
 export type SiteConfig = {
@@ -287,7 +299,10 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
       "youtube",
       "github",
     ];
-    const orderList = footer.socialOrder && footer.socialOrder.length > 0 ? footer.socialOrder : platforms;
+    const orderList =
+      footer.socialOrder && footer.socialOrder.length > 0
+        ? footer.socialOrder
+        : platforms;
     const map = footer.socials || {};
     footer.socialIcons = orderList.map((p, idx) => ({
       platform: p,
@@ -560,7 +575,10 @@ const DEFAULTS: SiteConfig = {
     background: { kind: "color", color: "#0a0a0a" },
     // new fields will be filled by sanitizeConfig
   },
-  slider: { widthPercent: 100, height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 } },
+  slider: {
+    widthPercent: 100,
+    height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 },
+  },
   theme: {
     brand: "#0ea5e9",
     pageBg: "#ffffff",

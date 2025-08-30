@@ -12,7 +12,10 @@ export default function HeroSlider() {
 
   useEffect(() => {
     const compute = () => {
-      const cfg = state.slider || { widthPercent: 100, height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 } };
+      const cfg = state.slider || {
+        widthPercent: 100,
+        height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 },
+      };
       const w = window.innerWidth;
       const bpMobile = 768;
       const bpTablet = 1024;
@@ -60,7 +63,10 @@ export default function HeroSlider() {
         paddingBottom: state.settings?.sectionPadding?.hero ?? 24,
       }}
     >
-      <div className="relative" style={{ width: `${widthPercent}%`, margin: "0 auto" }}>
+      <div
+        className="relative"
+        style={{ width: `${widthPercent}%`, margin: "0 auto" }}
+      >
         <button
           aria-label="Previous"
           onClick={scrollPrev}
@@ -75,7 +81,11 @@ export default function HeroSlider() {
         >
           <ChevronRight className="h-5 w-5" />
         </button>
-        <div ref={emblaRef} className="overflow-hidden rounded-[20px]" style={{ height: sliderHeight }}>
+        <div
+          ref={emblaRef}
+          className="overflow-hidden rounded-[20px]"
+          style={{ height: sliderHeight }}
+        >
           <div className="flex h-full">
             {images.map((img) => (
               <div

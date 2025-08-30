@@ -346,12 +346,20 @@ export function FooterAdmin() {
   const footer = state.footer;
   const headings = footer.headings!;
   const linksBy = footer.linksByColumn!;
-  const socialIcons = (footer.socialIcons || []).slice().sort((a, b) => a.order - b.order);
+  const socialIcons = (footer.socialIcons || [])
+    .slice()
+    .sort((a, b) => a.order - b.order);
 
-  const updateFooter = (patch: Partial<typeof footer>) => set({ footer: { ...footer, ...patch } });
+  const updateFooter = (patch: Partial<typeof footer>) =>
+    set({ footer: { ...footer, ...patch } });
 
-  const updateHead = (key: keyof NonNullable<typeof headings>, patch: Partial<(typeof headings)[typeof key]>) => {
-    updateFooter({ headings: { ...headings, [key]: { ...headings[key], ...patch } } });
+  const updateHead = (
+    key: keyof NonNullable<typeof headings>,
+    patch: Partial<(typeof headings)[typeof key]>,
+  ) => {
+    updateFooter({
+      headings: { ...headings, [key]: { ...headings[key], ...patch } },
+    });
   };
 
   const updateLink = (
@@ -367,12 +375,19 @@ export function FooterAdmin() {
     const arr = [...linksBy[column], { text: "New", url: "#", enabled: true }];
     updateFooter({ linksByColumn: { ...linksBy, [column]: arr } });
   };
-  const removeLink = (column: keyof NonNullable<typeof linksBy>, idx: number) => {
+  const removeLink = (
+    column: keyof NonNullable<typeof linksBy>,
+    idx: number,
+  ) => {
     const arr = [...linksBy[column]];
     arr.splice(idx, 1);
     updateFooter({ linksByColumn: { ...linksBy, [column]: arr } });
   };
-  const moveLink = (column: keyof NonNullable<typeof linksBy>, idx: number, dir: -1 | 1) => {
+  const moveLink = (
+    column: keyof NonNullable<typeof linksBy>,
+    idx: number,
+    dir: -1 | 1,
+  ) => {
     const arr = [...linksBy[column]];
     const ni = Math.min(arr.length - 1, Math.max(0, idx + dir));
     if (ni === idx) return;
@@ -381,13 +396,25 @@ export function FooterAdmin() {
     updateFooter({ linksByColumn: { ...linksBy, [column]: arr } });
   };
 
-  const updateSocial = (idx: number, patch: Partial<NonNullable<typeof socialIcons>[number]>) => {
+  const updateSocial = (
+    idx: number,
+    patch: Partial<NonNullable<typeof socialIcons>[number]>,
+  ) => {
     const arr = [...socialIcons];
     arr[idx] = { ...arr[idx], ...patch };
     updateFooter({ socialIcons: arr });
   };
   const addSocial = () => {
-    const arr = [...socialIcons, { platform: "facebook", url: "", icon: "facebook", order: socialIcons.length, enabled: true }];
+    const arr = [
+      ...socialIcons,
+      {
+        platform: "facebook",
+        url: "",
+        icon: "facebook",
+        order: socialIcons.length,
+        enabled: true,
+      },
+    ];
     updateFooter({ socialIcons: arr });
   };
   const removeSocial = (idx: number) => {
@@ -406,7 +433,11 @@ export function FooterAdmin() {
     updateFooter({ socialIcons: arr });
   };
 
-  const colors = footer.colors || { textColor: "#ffffff", linkColor: "#ffffff", iconColor: "#ffffff" };
+  const colors = footer.colors || {
+    textColor: "#ffffff",
+    linkColor: "#ffffff",
+    iconColor: "#ffffff",
+  };
 
   return (
     <div className="space-y-8">
@@ -435,7 +466,10 @@ export function FooterAdmin() {
           />
         </AdminFormGroup>
 
-        <AdminSection title="Headings & Visibility" description="Control column headings and enable/disable sections.">
+        <AdminSection
+          title="Headings & Visibility"
+          description="Control column headings and enable/disable sections."
+        >
           <div className="grid sm:grid-cols-3 gap-4">
             {(["about", "quick", "contact"] as const).map((k) => (
               <div key={k} className="space-y-2">
@@ -448,7 +482,9 @@ export function FooterAdmin() {
                   <input
                     type="checkbox"
                     checked={headings[k].enabled}
-                    onChange={(e) => updateHead(k, { enabled: e.target.checked })}
+                    onChange={(e) =>
+                      updateHead(k, { enabled: e.target.checked })
+                    }
                   />
                   <span>Enabled</span>
                 </label>
@@ -457,7 +493,10 @@ export function FooterAdmin() {
           </div>
         </AdminSection>
 
-        <AdminSection title="Links by Column" description="Manage links for About, Quick Links, and Contact.">
+        <AdminSection
+          title="Links by Column"
+          description="Manage links for About, Quick Links, and Contact."
+        >
           <div className="space-y-6">
             {(["about", "quick", "contact"] as const).map((col) => (
               <div key={col} className="space-y-2">
@@ -469,35 +508,56 @@ export function FooterAdmin() {
                 </div>
                 <div className="space-y-2">
                   {linksBy[col].map((link, i) => (
-                    <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div
+                      key={i}
+                      className="flex flex-col sm:flex-row sm:items-center gap-2"
+                    >
                       <AdminInput
                         placeholder="Text"
                         value={link.text}
-                        onChange={(e) => updateLink(col, i, { text: e.target.value })}
+                        onChange={(e) =>
+                          updateLink(col, i, { text: e.target.value })
+                        }
                         className="sm:w-48"
                       />
                       <AdminInput
                         placeholder="https://..."
                         value={link.url}
-                        onChange={(e) => updateLink(col, i, { url: e.target.value })}
+                        onChange={(e) =>
+                          updateLink(col, i, { url: e.target.value })
+                        }
                         className="flex-1"
                       />
                       <label className="flex items-center gap-2 text-sm">
                         <input
                           type="checkbox"
                           checked={link.enabled}
-                          onChange={(e) => updateLink(col, i, { enabled: e.target.checked })}
+                          onChange={(e) =>
+                            updateLink(col, i, { enabled: e.target.checked })
+                          }
                         />
                         <span>Enabled</span>
                       </label>
                       <div className="flex items-center gap-1">
-                        <AdminButton size="small" variant="secondary" onClick={() => moveLink(col, i, -1)}>
+                        <AdminButton
+                          size="small"
+                          variant="secondary"
+                          onClick={() => moveLink(col, i, -1)}
+                        >
                           ↑
                         </AdminButton>
-                        <AdminButton size="small" variant="secondary" onClick={() => moveLink(col, i, 1)}>
+                        <AdminButton
+                          size="small"
+                          variant="secondary"
+                          onClick={() => moveLink(col, i, 1)}
+                        >
                           ↓
                         </AdminButton>
-                        <AdminIconButton variant="danger" size="small" onClick={() => removeLink(col, i)}>
+                        <AdminIconButton
+                          variant="danger"
+                          size="small"
+                          onClick={() => removeLink(col, i)}
+                        >
                           <Trash2 className="h-3 w-3" />
                         </AdminIconButton>
                       </div>
@@ -509,13 +569,21 @@ export function FooterAdmin() {
           </div>
         </AdminSection>
 
-        <AdminSection title="Social Media Icons" description="Add, enable, and reorder social icons.">
+        <AdminSection
+          title="Social Media Icons"
+          description="Add, enable, and reorder social icons."
+        >
           <div className="space-y-2">
             {socialIcons.map((s, i) => (
-              <div key={`${s.platform}-${i}`} className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <div
+                key={`${s.platform}-${i}`}
+                className="flex flex-col sm:flex-row sm:items-center gap-2"
+              >
                 <AdminInput
                   value={s.platform}
-                  onChange={(e) => updateSocial(i, { platform: e.target.value })}
+                  onChange={(e) =>
+                    updateSocial(i, { platform: e.target.value })
+                  }
                   className="sm:w-40"
                   placeholder="platform"
                 />
@@ -535,18 +603,32 @@ export function FooterAdmin() {
                   <input
                     type="checkbox"
                     checked={s.enabled}
-                    onChange={(e) => updateSocial(i, { enabled: e.target.checked })}
+                    onChange={(e) =>
+                      updateSocial(i, { enabled: e.target.checked })
+                    }
                   />
                   <span>Enabled</span>
                 </label>
                 <div className="flex items-center gap-1">
-                  <AdminButton size="small" variant="secondary" onClick={() => moveSocial(i, -1)}>
+                  <AdminButton
+                    size="small"
+                    variant="secondary"
+                    onClick={() => moveSocial(i, -1)}
+                  >
                     ↑
                   </AdminButton>
-                  <AdminButton size="small" variant="secondary" onClick={() => moveSocial(i, 1)}>
+                  <AdminButton
+                    size="small"
+                    variant="secondary"
+                    onClick={() => moveSocial(i, 1)}
+                  >
                     ↓
                   </AdminButton>
-                  <AdminIconButton variant="danger" size="small" onClick={() => removeSocial(i)}>
+                  <AdminIconButton
+                    variant="danger"
+                    size="small"
+                    onClick={() => removeSocial(i)}
+                  >
                     <Trash2 className="h-3 w-3" />
                   </AdminIconButton>
                 </div>
@@ -558,14 +640,21 @@ export function FooterAdmin() {
           </div>
         </AdminSection>
 
-        <AdminSection title="Colors" description="Customize text, link, and icon colors.">
+        <AdminSection
+          title="Colors"
+          description="Customize text, link, and icon colors."
+        >
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="flex items-center gap-3">
               <label className="text-sm w-28">Text</label>
               <input
                 type="color"
                 value={colors.textColor || "#ffffff"}
-                onChange={(e) => updateFooter({ colors: { ...colors, textColor: e.target.value } })}
+                onChange={(e) =>
+                  updateFooter({
+                    colors: { ...colors, textColor: e.target.value },
+                  })
+                }
               />
             </div>
             <div className="flex items-center gap-3">
@@ -573,7 +662,11 @@ export function FooterAdmin() {
               <input
                 type="color"
                 value={colors.linkColor || colors.textColor || "#ffffff"}
-                onChange={(e) => updateFooter({ colors: { ...colors, linkColor: e.target.value } })}
+                onChange={(e) =>
+                  updateFooter({
+                    colors: { ...colors, linkColor: e.target.value },
+                  })
+                }
               />
             </div>
             <div className="flex items-center gap-3">
@@ -581,7 +674,11 @@ export function FooterAdmin() {
               <input
                 type="color"
                 value={colors.iconColor || colors.textColor || "#ffffff"}
-                onChange={(e) => updateFooter({ colors: { ...colors, iconColor: e.target.value } })}
+                onChange={(e) =>
+                  updateFooter({
+                    colors: { ...colors, iconColor: e.target.value },
+                  })
+                }
               />
             </div>
           </div>
