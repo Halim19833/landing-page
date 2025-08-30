@@ -1,5 +1,5 @@
 import { useSiteConfig } from "@/state/site-config";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AdminPageHeader,
   AdminCard,
@@ -24,6 +24,7 @@ function readFileAsDataURL(file: File): Promise<string> {
 export default function SliderAdmin() {
   const { state, set } = useSiteConfig();
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Local form state for size controls
   const cfg = state.slider || { widthPercent: 100, height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 } };
@@ -81,17 +82,18 @@ export default function SliderAdmin() {
         title="Hero Slider"
         description="Upload, reorder, and manage the slides shown in the homepage hero."
         action={
-          <label className="inline-flex items-center">
+          <>
             <input
+              ref={fileInputRef}
               type="file"
               accept="image/*"
               className="hidden"
               onChange={addSlide}
             />
-            <AdminButton className="cursor-pointer">
+            <AdminButton onClick={() => fileInputRef.current?.click()}>
               <Images className="h-4 w-4 mr-2" /> Upload Slide
             </AdminButton>
-          </label>
+          </>
         }
       />
 
