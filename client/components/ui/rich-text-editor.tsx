@@ -193,7 +193,7 @@ export function RichTextEditor({
       />
 
       {/* Placeholder styling */}
-      <style jsx>{`
+      <style>{`
         [contenteditable]:empty:before {
           content: attr(data-placeholder);
           color: #9ca3af;
