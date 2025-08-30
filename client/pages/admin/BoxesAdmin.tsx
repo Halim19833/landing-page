@@ -321,7 +321,27 @@ export default function BoxesAdmin() {
       {/* Live Grid Editor */}
       <AdminSection title="Grid Editor" description="Drag, drop, and resize boxes. Changes save instantly.">
         <GridEditor />
-        <div className="flex items-center justify-end gap-2 mt-4">
+        <div className="flex items-center justify-between gap-3 mt-4">
+          {/* Sidebar list */}
+          <div className="flex-1 overflow-x-auto">
+            <div className="flex gap-2">
+              {state.boxes.map((b, i) => (
+                <div key={b.id} className="min-w-[220px] border rounded-lg bg-white">
+                  <div className="flex items-center gap-2 p-2 border-b">
+                    <span title="Drag" className="inline-flex h-6 w-6 items-center justify-center rounded bg-neutral-100"><GripVertical className="h-3 w-3 text-neutral-600" /></span>
+                    <span className="text-sm font-medium truncate flex-1">{b.title}</span>
+                    <label className="flex items-center gap-1 text-xs">
+                      <input type="checkbox" checked={!b.hidden} onChange={(e) => set({ boxes: state.boxes.map(x => x.id===b.id ? { ...x, hidden: !e.target.checked } : x) })} />
+                      Visible
+                    </label>
+                  </div>
+                  <div className="p-2 flex items-center justify-end">
+                    <BoxEditorTrigger boxId={b.id} index={i} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <ExportImportControls />
         </div>
       </AdminSection>
@@ -348,6 +368,7 @@ export default function BoxesAdmin() {
                 onChange={(e) => setDraft(live.id, { title: e.target.value })}
                 className="border rounded px-2 py-1 text-sm flex-1"
               />
+              <button className="px-2 py-1 text-xs rounded border" onClick={() => setDraft(live.id, { title: (draft.title || "") + " 😊" })}>Emoji</button>
               <select
                 value={draft.size as any}
                 onChange={(e) =>
