@@ -228,12 +228,30 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
           typeof bg.overlayStrength === "number" ? bg.overlayStrength : 0.4,
       };
 
+    // grid spans defaults based on legacy size and default grid columns (mobile 1, tablet 2, desktop 4)
+    const size = b.size || "small";
+    const spanDesktop = size === "large" ? 4 : size === "medium" ? 2 : 1;
+    const spanTablet = size === "large" ? 2 : size === "medium" ? 2 : 1;
+    const spanMobile = 1;
+
+    const gridSpan = {
+      mobile: Math.max(1, Math.min(12, b.gridSpan?.mobile ?? spanMobile)),
+      tablet: Math.max(1, Math.min(12, b.gridSpan?.tablet ?? spanTablet)),
+      desktop: Math.max(1, Math.min(12, b.gridSpan?.desktop ?? spanDesktop)),
+    } as NonNullable<Box["gridSpan"]>;
+
+    const alignH: Box["alignH"] = b.alignH || "left";
+    const alignV: Box["alignV"] = b.alignV || "top";
+
     return {
       ...b,
       ctaMode: b.ctaMode || "button",
       borderRadius: typeof b.borderRadius === "number" ? b.borderRadius : 12,
       shadow: b.shadow || { intensity: 12, direction: "bottom-right" },
       background,
+      gridSpan,
+      alignH,
+      alignV,
       modalStyle: b.modalStyle
         ? {
             ...b.modalStyle,
