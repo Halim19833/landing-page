@@ -312,10 +312,38 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
     ...footer,
   };
 
+  // Slider defaults
+  const slider = (data.slider || {
+    widthPercent: 100,
+    height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 },
+  }) as SiteConfig["slider"];
+  const sliderFixed = {
+    widthPercent:
+      typeof slider?.widthPercent === "number"
+        ? Math.min(100, Math.max(50, Math.round(slider.widthPercent)))
+        : 100,
+    height: {
+      unit: slider?.height?.unit === "vh" ? "vh" : "px",
+      mobile:
+        typeof slider?.height?.mobile === "number"
+          ? Math.max(100, slider.height.mobile)
+          : 250,
+      tablet:
+        typeof slider?.height?.tablet === "number"
+          ? Math.max(120, slider.height.tablet)
+          : 320,
+      desktop:
+        typeof slider?.height?.desktop === "number"
+          ? Math.max(140, slider.height.desktop)
+          : 400,
+    },
+  } as SliderConfig;
+
   return {
     ...data,
     boxes,
     footer: nextFooter,
+    slider: sliderFixed,
     theme: {
       ...theme,
       brand: fix(theme.brand),
