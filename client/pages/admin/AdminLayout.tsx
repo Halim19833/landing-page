@@ -229,7 +229,7 @@ export default function AdminLayout() {
         </div>
 
         {/* Content area */}
-        <div className="p-6 lg:p-8">
+        <div className="p-6 lg:p-8 max-w-[1200px] mx-auto">
           <Outlet />
         </div>
       </main>
