@@ -57,45 +57,23 @@ export default function SiteFooter() {
               {state.header.logoText}
             </h3>
             <p className="text-sm opacity-80 leading-relaxed">
-              We craft reliable web platforms and modern digital experiences
-              with a focus on performance and usability.
+              {state.footer.description ||
+                "We craft reliable web platforms and modern digital experiences with a focus on performance and usability."}
             </p>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-3">Quick Links</h3>
             <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="#"
-                  className="opacity-80 hover:opacity-100 hover:underline transition-opacity"
-                >
-                  About
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="opacity-80 hover:opacity-100 hover:underline transition-opacity"
-                >
-                  Services
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#contact"
-                  className="opacity-80 hover:opacity-100 hover:underline transition-opacity"
-                >
-                  Contact
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/admin"
-                  className="opacity-80 hover:opacity-100 hover:underline transition-opacity"
-                >
-                  Admin Panel
-                </a>
-              </li>
+              {(state.footer.links || []).map((l, idx) => (
+                <li key={idx}>
+                  <a
+                    href={l.href || "#"}
+                    className="opacity-80 hover:opacity-100 hover:underline transition-opacity"
+                  >
+                    {l.label || "Link"}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
           <div>
