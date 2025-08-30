@@ -147,6 +147,11 @@ export type SettingsConfig = {
   contactEmail?: string;
 };
 
+export type SliderConfig = {
+  widthPercent: number; // 50 - 100
+  height: { unit: "px" | "vh"; mobile: number; tablet: number; desktop: number };
+};
+
 export type SiteConfig = {
   header: HeaderConfig;
   slides: Slide[];
@@ -155,6 +160,7 @@ export type SiteConfig = {
   footer: FooterConfig;
   theme: ThemeConfig;
   settings?: SettingsConfig;
+  slider?: SliderConfig;
 };
 
 function expandShortHex(hex?: string | null): string | undefined {
