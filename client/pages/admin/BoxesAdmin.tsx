@@ -10,7 +10,12 @@ import {
 } from "lucide-react";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   AdminPageHeader,
   AdminCard,
@@ -34,7 +39,12 @@ function expandShortHex(hex?: string): string | undefined {
   return hex;
 }
 
-import { WidthProvider, Responsive, type Layout, type Layouts } from "react-grid-layout";
+import {
+  WidthProvider,
+  Responsive,
+  type Layout,
+  type Layouts,
+} from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 const ResponsiveGridLayout = WidthProvider(Responsive as any);
@@ -63,10 +73,19 @@ function ExportImportControls() {
   return (
     <div className="flex items-center gap-2">
       <label className="inline-flex items-center">
-        <input type="file" accept="application/json" className="hidden" onChange={onImport} />
-        <button className="px-3 py-1.5 text-sm rounded border">Import JSON</button>
+        <input
+          type="file"
+          accept="application/json"
+          className="hidden"
+          onChange={onImport}
+        />
+        <button className="px-3 py-1.5 text-sm rounded border">
+          Import JSON
+        </button>
       </label>
-      <button className="px-3 py-1.5 text-sm rounded border" onClick={onExport}>Export JSON</button>
+      <button className="px-3 py-1.5 text-sm rounded border" onClick={onExport}>
+        Export JSON
+      </button>
     </div>
   );
 }
@@ -84,10 +103,27 @@ function GridEditor() {
     const items = state.boxes;
     const toL = (bp: "mobile" | "tablet" | "desktop"): Layout[] =>
       items.map((b, i) => {
-        const l = (b.layout as any)?.[bp] || { x: 0, y: i, w: (b.gridSpan as any)?.[bp] || 1, h: 1 };
-        return { i: b.id, x: l.x, y: l.y, w: l.w, h: l.h, minW: 1, minH: 1 } as Layout;
+        const l = (b.layout as any)?.[bp] || {
+          x: 0,
+          y: i,
+          w: (b.gridSpan as any)?.[bp] || 1,
+          h: 1,
+        };
+        return {
+          i: b.id,
+          x: l.x,
+          y: l.y,
+          w: l.w,
+          h: l.h,
+          minW: 1,
+          minH: 1,
+        } as Layout;
       });
-    return { lg: toL("desktop"), md: toL("tablet"), sm: toL("mobile") } as Layouts;
+    return {
+      lg: toL("desktop"),
+      md: toL("tablet"),
+      sm: toL("mobile"),
+    } as Layouts;
   };
 
   const [layouts, setLayouts] = useState<Layouts>(() => makeLayouts());
@@ -96,15 +132,31 @@ function GridEditor() {
 
   const onLayoutsChange = (current: Layout[], all: Layouts) => {
     setLayouts(all);
-    const mapById = (list: Layout[]) => Object.fromEntries(list.map((l) => [l.i, l]));
+    const mapById = (list: Layout[]) =>
+      Object.fromEntries(list.map((l) => [l.i, l]));
     const lg = mapById(all.lg || []);
     const md = mapById(all.md || []);
     const sm = mapById(all.sm || []);
 
     const nextBoxes = state.boxes.map((b, idx) => {
-      const Lg = lg[b.id] || { x: 0, y: idx, w: (b.gridSpan as any)?.desktop || 1, h: 1 };
-      const Md = md[b.id] || { x: 0, y: idx, w: (b.gridSpan as any)?.tablet || 1, h: 1 };
-      const Sm = sm[b.id] || { x: 0, y: idx, w: (b.gridSpan as any)?.mobile || 1, h: 1 };
+      const Lg = lg[b.id] || {
+        x: 0,
+        y: idx,
+        w: (b.gridSpan as any)?.desktop || 1,
+        h: 1,
+      };
+      const Md = md[b.id] || {
+        x: 0,
+        y: idx,
+        w: (b.gridSpan as any)?.tablet || 1,
+        h: 1,
+      };
+      const Sm = sm[b.id] || {
+        x: 0,
+        y: idx,
+        w: (b.gridSpan as any)?.mobile || 1,
+        h: 1,
+      };
       return {
         ...b,
         layout: {
@@ -145,9 +197,15 @@ function GridEditor() {
             </div>
             <div className="p-3">
               {b.imageUrl ? (
-                <img src={b.imageUrl} className="w-full h-24 object-cover rounded" alt="preview" />
+                <img
+                  src={b.imageUrl}
+                  className="w-full h-24 object-cover rounded"
+                  alt="preview"
+                />
               ) : (
-                <div className="h-24 flex items-center justify-center text-xs text-gray-500">No image</div>
+                <div className="h-24 flex items-center justify-center text-xs text-gray-500">
+                  No image
+                </div>
               )}
             </div>
           </div>
@@ -161,13 +219,25 @@ function BoxEditorTrigger({ boxId, index }: { boxId: string; index: number }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <AdminButton size="small" variant="secondary" onClick={() => setOpen(true)}>Edit</AdminButton>
+      <AdminButton
+        size="small"
+        variant="secondary"
+        onClick={() => setOpen(true)}
+      >
+        Edit
+      </AdminButton>
       {open && <BoxEditorSheet boxId={boxId} onClose={() => setOpen(false)} />}
     </>
   );
 }
 
-function BoxEditorSheet({ boxId, onClose }: { boxId: string; onClose: () => void }) {
+function BoxEditorSheet({
+  boxId,
+  onClose,
+}: {
+  boxId: string;
+  onClose: () => void;
+}) {
   const { state, set } = useSiteConfig();
   const live = state.boxes.find((b) => b.id === boxId)!;
   const [draft, setDraft] = useState({ ...live });
@@ -189,64 +259,133 @@ function BoxEditorSheet({ boxId, onClose }: { boxId: string; onClose: () => void
         <div className="mt-4 space-y-4">
           <AdminFormGroup label="Title">
             <div className="flex items-center gap-2">
-              <AdminInput value={draft.title} onChange={(e) => setField({ title: e.target.value })} />
-              <EmojiPicker onEmojiClick={(e: EmojiClickData) => setField({ title: (draft.title || "") + e.emoji })} width={280} height={380} lazyLoadEmojis skinTonesDisabled categories={["suggested"] as any} />
+              <AdminInput
+                value={draft.title}
+                onChange={(e) => setField({ title: e.target.value })}
+              />
+              <EmojiPicker
+                onEmojiClick={(e: EmojiClickData) =>
+                  setField({ title: (draft.title || "") + e.emoji })
+                }
+                width={280}
+                height={380}
+                lazyLoadEmojis
+                skinTonesDisabled
+                categories={["suggested"] as any}
+              />
             </div>
           </AdminFormGroup>
           <AdminFormGroup label="Alt / Subtitle">
-            <AdminInput value={draft.alt || ""} onChange={(e) => setField({ alt: e.target.value })} />
+            <AdminInput
+              value={draft.alt || ""}
+              onChange={(e) => setField({ alt: e.target.value })}
+            />
           </AdminFormGroup>
           <AdminFormGroup label="Description">
-            <RichTextEditor value={draft.description || ""} onChange={(html) => setField({ description: html })} />
+            <RichTextEditor
+              value={draft.description || ""}
+              onChange={(html) => setField({ description: html })}
+            />
           </AdminFormGroup>
           <div className="grid grid-cols-2 gap-3">
             <AdminFormGroup label="Height (px)">
-              <AdminInput type="number" value={draft.height || 200} onChange={(e) => setField({ height: Number(e.target.value) })} />
+              <AdminInput
+                type="number"
+                value={draft.height || 200}
+                onChange={(e) => setField({ height: Number(e.target.value) })}
+              />
             </AdminFormGroup>
             <AdminFormGroup label="Border Radius">
-              <AdminInput type="number" value={draft.borderRadius ?? 12} onChange={(e) => setField({ borderRadius: Number(e.target.value) })} />
+              <AdminInput
+                type="number"
+                value={draft.borderRadius ?? 12}
+                onChange={(e) =>
+                  setField({ borderRadius: Number(e.target.value) })
+                }
+              />
             </AdminFormGroup>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <AdminFormGroup label="CTA Mode">
-              <AdminSelect value={draft.ctaMode || "button"} onChange={(e) => setField({ ctaMode: e.target.value })}>
+              <AdminSelect
+                value={draft.ctaMode || "button"}
+                onChange={(e) => setField({ ctaMode: e.target.value })}
+              >
                 <option value="button">Button</option>
                 <option value="icon">Icon</option>
                 <option value="both">Both</option>
               </AdminSelect>
             </AdminFormGroup>
             <AdminFormGroup label="Button Label">
-              <AdminInput value={draft.buttonLabel || "Read More"} onChange={(e) => setField({ buttonLabel: e.target.value })} />
+              <AdminInput
+                value={draft.buttonLabel || "Read More"}
+                onChange={(e) => setField({ buttonLabel: e.target.value })}
+              />
             </AdminFormGroup>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <AdminFormGroup label="Show Button">
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={draft.showButton !== false} onChange={(e) => setField({ showButton: e.target.checked })} />
+                <input
+                  type="checkbox"
+                  checked={draft.showButton !== false}
+                  onChange={(e) => setField({ showButton: e.target.checked })}
+                />
                 Visible
               </label>
             </AdminFormGroup>
             <AdminFormGroup label="Button Color">
-              <input type="color" value={expandShortHex(draft.buttonColor) || expandShortHex(state.theme.brand) || "#0ea5e9"} onChange={(e) => setField({ buttonColor: e.target.value })} />
+              <input
+                type="color"
+                value={
+                  expandShortHex(draft.buttonColor) ||
+                  expandShortHex(state.theme.brand) ||
+                  "#0ea5e9"
+                }
+                onChange={(e) => setField({ buttonColor: e.target.value })}
+              />
             </AdminFormGroup>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            {(["mobile","tablet","desktop"] as const).map((bp) => (
+            {(["mobile", "tablet", "desktop"] as const).map((bp) => (
               <AdminFormGroup key={bp} label={`Span ${bp}`}>
-                <AdminInput type="number" min={1} max={12} value={(draft.gridSpan as any)?.[bp] ?? 1} onChange={(e) => setField({ gridSpan: { ...(draft.gridSpan || { mobile:1, tablet:1, desktop:1 }), [bp]: Number(e.target.value) } })} />
+                <AdminInput
+                  type="number"
+                  min={1}
+                  max={12}
+                  value={(draft.gridSpan as any)?.[bp] ?? 1}
+                  onChange={(e) =>
+                    setField({
+                      gridSpan: {
+                        ...(draft.gridSpan || {
+                          mobile: 1,
+                          tablet: 1,
+                          desktop: 1,
+                        }),
+                        [bp]: Number(e.target.value),
+                      },
+                    })
+                  }
+                />
               </AdminFormGroup>
             ))}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <AdminFormGroup label="Align H">
-              <AdminSelect value={draft.alignH || "left"} onChange={(e) => setField({ alignH: e.target.value })}>
+              <AdminSelect
+                value={draft.alignH || "left"}
+                onChange={(e) => setField({ alignH: e.target.value })}
+              >
                 <option value="left">Left</option>
                 <option value="center">Center</option>
                 <option value="right">Right</option>
               </AdminSelect>
             </AdminFormGroup>
             <AdminFormGroup label="Align V">
-              <AdminSelect value={draft.alignV || "top"} onChange={(e) => setField({ alignV: e.target.value })}>
+              <AdminSelect
+                value={draft.alignV || "top"}
+                onChange={(e) => setField({ alignV: e.target.value })}
+              >
                 <option value="top">Top</option>
                 <option value="center">Center</option>
                 <option value="bottom">Bottom</option>
@@ -254,7 +393,9 @@ function BoxEditorSheet({ boxId, onClose }: { boxId: string; onClose: () => void
             </AdminFormGroup>
           </div>
           <div className="flex justify-end gap-2">
-            <AdminButton variant="secondary" onClick={onClose}>Close</AdminButton>
+            <AdminButton variant="secondary" onClick={onClose}>
+              Close
+            </AdminButton>
           </div>
         </div>
       </SheetContent>
@@ -296,7 +437,8 @@ export default function BoxesAdmin() {
         action={
           <div className="flex items-center gap-3">
             <div className="text-sm text-gray-600">
-              {state.boxes.filter((b) => !b.hidden).length} visible / {state.boxes.length} total
+              {state.boxes.filter((b) => !b.hidden).length} visible /{" "}
+              {state.boxes.length} total
             </div>
             <AdminButton onClick={add}>
               <Plus className="h-4 w-4 mr-2" />
@@ -306,18 +448,36 @@ export default function BoxesAdmin() {
         }
       />
 
-      <AdminSection title="Grid Settings" description="Control columns, gaps, column widths and background stripes.">
+      <AdminSection
+        title="Grid Settings"
+        description="Control columns, gaps, column widths and background stripes."
+      >
         <div className="grid sm:grid-cols-3 gap-4">
-          {(["mobile","tablet","desktop"] as const).map((bp) => (
+          {(["mobile", "tablet", "desktop"] as const).map((bp) => (
             <div key={bp} className="space-y-2">
               <label className="text-sm capitalize">{bp} Columns</label>
               <input
                 type="number"
                 min={1}
                 max={12}
-                value={(state.boxesGrid?.columns as any)?.[bp] ?? (bp === 'desktop' ? 4 : bp === 'tablet' ? 2 : 1)}
+                value={
+                  (state.boxesGrid?.columns as any)?.[bp] ??
+                  (bp === "desktop" ? 4 : bp === "tablet" ? 2 : 1)
+                }
                 onChange={(e) =>
-                  set({ boxesGrid: { ...(state.boxesGrid || {}), columns: { ...(state.boxesGrid?.columns || { mobile:1, tablet:2, desktop:4 }), [bp]: Number(e.target.value) } } })
+                  set({
+                    boxesGrid: {
+                      ...(state.boxesGrid || {}),
+                      columns: {
+                        ...(state.boxesGrid?.columns || {
+                          mobile: 1,
+                          tablet: 2,
+                          desktop: 4,
+                        }),
+                        [bp]: Number(e.target.value),
+                      },
+                    },
+                  })
                 }
                 className="w-full border rounded px-2 py-1 text-sm"
               />
@@ -325,15 +485,29 @@ export default function BoxesAdmin() {
           ))}
         </div>
         <div className="grid sm:grid-cols-3 gap-4 mt-4">
-          {(["mobile","tablet","desktop"] as const).map((bp) => (
+          {(["mobile", "tablet", "desktop"] as const).map((bp) => (
             <div key={bp} className="space-y-2">
-              <label className="text-sm capitalize">{bp} Column Width (px)</label>
+              <label className="text-sm capitalize">
+                {bp} Column Width (px)
+              </label>
               <input
                 type="number"
                 min={0}
                 value={(state.boxesGrid?.columnWidth as any)?.[bp] ?? 0}
                 onChange={(e) =>
-                  set({ boxesGrid: { ...(state.boxesGrid || {}), columnWidth: { ...(state.boxesGrid?.columnWidth || { mobile:0, tablet:0, desktop:0 }), [bp]: Number(e.target.value) } } })
+                  set({
+                    boxesGrid: {
+                      ...(state.boxesGrid || {}),
+                      columnWidth: {
+                        ...(state.boxesGrid?.columnWidth || {
+                          mobile: 0,
+                          tablet: 0,
+                          desktop: 0,
+                        }),
+                        [bp]: Number(e.target.value),
+                      },
+                    },
+                  })
                 }
                 className="w-full border rounded px-2 py-1 text-sm"
               />
@@ -341,15 +515,30 @@ export default function BoxesAdmin() {
           ))}
         </div>
         <div className="grid sm:grid-cols-3 gap-4 mt-4">
-          {(["mobile","tablet","desktop"] as const).map((bp) => (
+          {(["mobile", "tablet", "desktop"] as const).map((bp) => (
             <div key={bp} className="space-y-2">
               <label className="text-sm capitalize">{bp} Gap (px)</label>
               <input
                 type="number"
                 min={0}
-                value={(state.boxesGrid?.gap as any)?.[bp] ?? (bp === 'desktop' ? 24 : bp === 'tablet' ? 20 : 16)}
+                value={
+                  (state.boxesGrid?.gap as any)?.[bp] ??
+                  (bp === "desktop" ? 24 : bp === "tablet" ? 20 : 16)
+                }
                 onChange={(e) =>
-                  set({ boxesGrid: { ...(state.boxesGrid || {}), gap: { ...(state.boxesGrid?.gap || { mobile:16, tablet:20, desktop:24 }), [bp]: Number(e.target.value) } } })
+                  set({
+                    boxesGrid: {
+                      ...(state.boxesGrid || {}),
+                      gap: {
+                        ...(state.boxesGrid?.gap || {
+                          mobile: 16,
+                          tablet: 20,
+                          desktop: 24,
+                        }),
+                        [bp]: Number(e.target.value),
+                      },
+                    },
+                  })
                 }
                 className="w-full border rounded px-2 py-1 text-sm"
               />
@@ -362,32 +551,71 @@ export default function BoxesAdmin() {
             <input
               type="color"
               value={state.boxesGrid?.columnColor || "#e0f2fe"}
-              onChange={(e) => set({ boxesGrid: { ...(state.boxesGrid || {}), columnColor: e.target.value } })}
+              onChange={(e) =>
+                set({
+                  boxesGrid: {
+                    ...(state.boxesGrid || {}),
+                    columnColor: e.target.value,
+                  },
+                })
+              }
             />
           </div>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={!!state.boxesGrid?.showColumnColor}
-              onChange={(e) => set({ boxesGrid: { ...(state.boxesGrid || {}), showColumnColor: e.target.checked } })}
+              onChange={(e) =>
+                set({
+                  boxesGrid: {
+                    ...(state.boxesGrid || {}),
+                    showColumnColor: e.target.checked,
+                  },
+                })
+              }
             />
             Show Column Background
           </label>
         </div>
       </AdminSection>
 
-      <AdminSection title="Grid Editor" description="Drag, drop, and resize boxes. Changes save instantly.">
+      <AdminSection
+        title="Grid Editor"
+        description="Drag, drop, and resize boxes. Changes save instantly."
+      >
         <GridEditor />
         <div className="flex items-center justify-between gap-3 mt-4">
           <div className="flex-1 overflow-x-auto">
             <div className="flex gap-2">
               {state.boxes.map((b, i) => (
-                <div key={b.id} className="min-w-[220px] border rounded-lg bg-white">
+                <div
+                  key={b.id}
+                  className="min-w-[220px] border rounded-lg bg-white"
+                >
                   <div className="flex items-center gap-2 p-2 border-b">
-                    <span title="Drag" className="inline-flex h-6 w-6 items-center justify-center rounded bg-neutral-100"><GripVertical className="h-3 w-3 text-neutral-600" /></span>
-                    <span className="text-sm font-medium truncate flex-1">{b.title}</span>
+                    <span
+                      title="Drag"
+                      className="inline-flex h-6 w-6 items-center justify-center rounded bg-neutral-100"
+                    >
+                      <GripVertical className="h-3 w-3 text-neutral-600" />
+                    </span>
+                    <span className="text-sm font-medium truncate flex-1">
+                      {b.title}
+                    </span>
                     <label className="flex items-center gap-1 text-xs">
-                      <input type="checkbox" checked={!b.hidden} onChange={(e) => set({ boxes: state.boxes.map(x => x.id===b.id ? { ...x, hidden: !e.target.checked } : x) })} />
+                      <input
+                        type="checkbox"
+                        checked={!b.hidden}
+                        onChange={(e) =>
+                          set({
+                            boxes: state.boxes.map((x) =>
+                              x.id === b.id
+                                ? { ...x, hidden: !e.target.checked }
+                                : x,
+                            ),
+                          })
+                        }
+                      />
                       Visible
                     </label>
                   </div>

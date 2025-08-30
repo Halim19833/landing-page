@@ -75,14 +75,19 @@ function Box({ id }: BoxProps) {
               {box.title}
             </div>
             <div className="mt-3 flex items-center gap-2">
-              {((box.ctaMode === "button" || box.ctaMode === "both" || !box.ctaMode) && box.showButton !== false) && (
-                <span
-                  className="inline-flex items-center px-3 py-2 text-sm rounded-md text-white shadow transition-colors"
-                  style={{ backgroundColor: box.buttonColor || state.theme.brand }}
-                >
-                  {box.buttonLabel || "Read More"}
-                </span>
-              )}
+              {(box.ctaMode === "button" ||
+                box.ctaMode === "both" ||
+                !box.ctaMode) &&
+                box.showButton !== false && (
+                  <span
+                    className="inline-flex items-center px-3 py-2 text-sm rounded-md text-white shadow transition-colors"
+                    style={{
+                      backgroundColor: box.buttonColor || state.theme.brand,
+                    }}
+                  >
+                    {box.buttonLabel || "Read More"}
+                  </span>
+                )}
               {(box.ctaMode === "icon" || box.ctaMode === "both") && (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -149,12 +154,18 @@ export default function Boxes() {
 
   const cols = state.boxesGrid?.columns || { mobile: 1, tablet: 2, desktop: 4 };
   const gap = state.boxesGrid?.gap || { mobile: 16, tablet: 20, desktop: 24 };
-  const cwidth = state.boxesGrid?.columnWidth || { mobile: 0, tablet: 0, desktop: 0 };
+  const cwidth = state.boxesGrid?.columnWidth || {
+    mobile: 0,
+    tablet: 0,
+    desktop: 0,
+  };
   const colColor = state.boxesGrid?.columnColor || "transparent";
   const showCols = !!state.boxesGrid?.showColumnColor;
 
   const gridTemplate = (count: number, widthPx: number) =>
-    widthPx > 0 ? `repeat(${count}, minmax(${widthPx}px, 1fr))` : `repeat(${count}, minmax(0, 1fr))`;
+    widthPx > 0
+      ? `repeat(${count}, minmax(${widthPx}px, 1fr))`
+      : `repeat(${count}, minmax(0, 1fr))`;
 
   const bgCols = showCols
     ? {
@@ -167,14 +178,20 @@ export default function Boxes() {
     alignSelf: v === "center" ? "center" : v === "bottom" ? "end" : "start",
   });
 
-  const [bp, setBp] = React.useState<'mobile'|'tablet'|'desktop'>(() => (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'desktop' : (typeof window !== 'undefined' && window.innerWidth >= 640 ? 'tablet' : 'mobile')));
+  const [bp, setBp] = React.useState<"mobile" | "tablet" | "desktop">(() =>
+    typeof window !== "undefined" && window.innerWidth >= 1024
+      ? "desktop"
+      : typeof window !== "undefined" && window.innerWidth >= 640
+        ? "tablet"
+        : "mobile",
+  );
   React.useEffect(() => {
     const onResize = () => {
       const w = window.innerWidth;
-      setBp(w >= 1024 ? 'desktop' : w >= 640 ? 'tablet' : 'mobile');
+      setBp(w >= 1024 ? "desktop" : w >= 640 ? "tablet" : "mobile");
     };
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   const visible = state.boxes
@@ -205,10 +222,10 @@ export default function Boxes() {
       >
         <style>{`
           @media (min-width: 640px){
-            .boxes-grid{ grid-template-columns: ${gridTemplate(cols.tablet, cwidth.tablet)}; gap: ${gap.tablet}px; ${showCols ? `background-image: repeating-linear-gradient(90deg, ${colColor}, ${colColor} 1px, transparent 1px, transparent calc(100% / ${cols.tablet}));` : ''} }
+            .boxes-grid{ grid-template-columns: ${gridTemplate(cols.tablet, cwidth.tablet)}; gap: ${gap.tablet}px; ${showCols ? `background-image: repeating-linear-gradient(90deg, ${colColor}, ${colColor} 1px, transparent 1px, transparent calc(100% / ${cols.tablet}));` : ""} }
           }
           @media (min-width: 1024px){
-            .boxes-grid{ grid-template-columns: ${gridTemplate(cols.desktop, cwidth.desktop)}; gap: ${gap.desktop}px; ${showCols ? `background-image: repeating-linear-gradient(90deg, ${colColor}, ${colColor} 1px, transparent 1px, transparent calc(100% / ${cols.desktop}));` : ''} }
+            .boxes-grid{ grid-template-columns: ${gridTemplate(cols.desktop, cwidth.desktop)}; gap: ${gap.desktop}px; ${showCols ? `background-image: repeating-linear-gradient(90deg, ${colColor}, ${colColor} 1px, transparent 1px, transparent calc(100% / ${cols.desktop}));` : ""} }
           }
         `}</style>
         {visible.map((b) => {

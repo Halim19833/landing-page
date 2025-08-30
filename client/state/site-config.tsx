@@ -44,7 +44,11 @@ export type BoxShadow = {
 };
 
 export type BoxLayoutItem = { x: number; y: number; w: number; h: number };
-export type BoxLayout = { mobile: BoxLayoutItem; tablet: BoxLayoutItem; desktop: BoxLayoutItem };
+export type BoxLayout = {
+  mobile: BoxLayoutItem;
+  tablet: BoxLayoutItem;
+  desktop: BoxLayoutItem;
+};
 
 export type Box = {
   id: string;
@@ -249,7 +253,12 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
     const alignH: Box["alignH"] = b.alignH || "left";
     const alignV: Box["alignV"] = b.alignV || "top";
 
-    const makeLayout = (w: number, i: number): BoxLayoutItem => ({ x: 0, y: i, w, h: 1 });
+    const makeLayout = (w: number, i: number): BoxLayoutItem => ({
+      x: 0,
+      y: i,
+      w,
+      h: 1,
+    });
     const idx = (data.boxes || []).findIndex((bx) => bx.id === b.id);
     const layout: BoxLayout = b.layout || {
       mobile: makeLayout(gridSpan.mobile, idx),
@@ -408,7 +417,8 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
     columnColor: "rgba(14,165,233,0.08)",
     showColumnColor: false,
   }) as BoxesGridConfig;
-  const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, Math.round(v)));
+  const clamp = (v: number, min: number, max: number) =>
+    Math.min(max, Math.max(min, Math.round(v)));
   const boxesGridFixed: BoxesGridConfig = {
     columns: {
       mobile: clamp(boxesGrid.columns.mobile || 1, 1, 12),
