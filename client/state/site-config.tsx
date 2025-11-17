@@ -43,6 +43,13 @@ export type BoxShadow = {
   direction: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 };
 
+export type BoxLayoutItem = { x: number; y: number; w: number; h: number };
+export type BoxLayout = {
+  mobile: BoxLayoutItem;
+  tablet: BoxLayoutItem;
+  desktop: BoxLayoutItem;
+};
+
 export type Box = {
   id: string;
   title: string;
@@ -51,16 +58,21 @@ export type Box = {
   description?: string; // rich text html
   buttonLabel?: string;
   ctaMode?: "button" | "icon" | "both";
+  showButton?: boolean;
+  buttonColor?: string;
   modalEnabled?: boolean;
   modalStyle?: { bg?: string; text?: string; shadow?: string; radius?: number };
   imageUrl?: string;
-  align?: "left" | "center" | "right";
   size?: "small" | "medium" | "large";
   height?: number; // px
   borderRadius?: number; // px
   shadow?: BoxShadow;
   background?: BoxBackground;
   hidden?: boolean;
+  gridSpan?: { mobile: number; tablet: number; desktop: number };
+  alignH?: "left" | "center" | "right";
+  alignV?: "top" | "center" | "bottom";
+  layout?: BoxLayout;
 };
 export type Logo = { id: string; url: string; href?: string; hidden?: boolean };
 
@@ -74,15 +86,52 @@ export type HeaderConfig = {
   selectedLang?: string;
   background?: BoxBackground;
 };
+
+export type FooterLinkItem = { text: string; url: string; enabled: boolean };
+export type FooterSocialItem = {
+  platform:
+    | "facebook"
+    | "twitter"
+    | "instagram"
+    | "linkedin"
+    | "youtube"
+    | "github"
+    | string;
+  url: string;
+  icon: string; // lucide icon name or platform key
+  order: number;
+  enabled: boolean;
+};
+export type FooterHeadings = {
+  about: { title: string; enabled: boolean };
+  quick: { title: string; enabled: boolean };
+  contact: { title: string; enabled: boolean };
+};
+export type FooterColors = {
+  textColor?: string;
+  linkColor?: string;
+  iconColor?: string;
+};
+export type FooterLinksByColumn = {
+  about: FooterLinkItem[];
+  quick: FooterLinkItem[];
+  contact: FooterLinkItem[];
+};
+
 export type FooterConfig = {
   text: string;
+  description?: string;
   extraText?: string;
+  // Legacy quick-links list (kept for migration)
+  links?: { label: string; href: string }[];
+  // Legacy socials map (kept for migration)
   socials?: Partial<
     Record<
       "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "github",
       string
     >
   >;
+  // Legacy order (kept for migration)
   socialOrder?: (
     | "facebook"
     | "twitter"
@@ -92,6 +141,11 @@ export type FooterConfig = {
     | "github"
   )[];
   background?: BoxBackground;
+  // New unified fields
+  headings?: FooterHeadings;
+  linksByColumn?: FooterLinksByColumn;
+  socialIcons?: FooterSocialItem[];
+  colors?: FooterColors;
 };
 export type ThemeConfig = {
   brand: string;
@@ -112,6 +166,24 @@ export type SettingsConfig = {
   contactEmail?: string;
 };
 
+export type SliderConfig = {
+  widthPercent: number; // 50 - 100
+  height: {
+    unit: "px" | "vh";
+    mobile: number;
+    tablet: number;
+    desktop: number;
+  };
+};
+
+export type BoxesGridConfig = {
+  columns: { mobile: number; tablet: number; desktop: number };
+  columnWidth?: { mobile: number; tablet: number; desktop: number }; // px
+  gap?: { mobile: number; tablet: number; desktop: number }; // px
+  columnColor?: string;
+  showColumnColor?: boolean;
+};
+
 export type SiteConfig = {
   header: HeaderConfig;
   slides: Slide[];
@@ -120,6 +192,8 @@ export type SiteConfig = {
   footer: FooterConfig;
   theme: ThemeConfig;
   settings?: SettingsConfig;
+  slider?: SliderConfig;
+  boxesGrid?: BoxesGridConfig;
 };
 
 function expandShortHex(hex?: string | null): string | undefined {
@@ -164,12 +238,46 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
           typeof bg.overlayStrength === "number" ? bg.overlayStrength : 0.4,
       };
 
+    // grid spans defaults based on legacy size and default grid columns (mobile 1, tablet 2, desktop 4)
+    const size = b.size || "small";
+    const spanDesktop = size === "large" ? 4 : size === "medium" ? 2 : 1;
+    const spanTablet = size === "large" ? 2 : size === "medium" ? 2 : 1;
+    const spanMobile = 1;
+
+    const gridSpan = {
+      mobile: Math.max(1, Math.min(12, b.gridSpan?.mobile ?? spanMobile)),
+      tablet: Math.max(1, Math.min(12, b.gridSpan?.tablet ?? spanTablet)),
+      desktop: Math.max(1, Math.min(12, b.gridSpan?.desktop ?? spanDesktop)),
+    } as NonNullable<Box["gridSpan"]>;
+
+    const alignH: Box["alignH"] = b.alignH || "left";
+    const alignV: Box["alignV"] = b.alignV || "top";
+
+    const makeLayout = (w: number, i: number): BoxLayoutItem => ({
+      x: 0,
+      y: i,
+      w,
+      h: 1,
+    });
+    const idx = (data.boxes || []).findIndex((bx) => bx.id === b.id);
+    const layout: BoxLayout = b.layout || {
+      mobile: makeLayout(gridSpan.mobile, idx),
+      tablet: makeLayout(gridSpan.tablet, idx),
+      desktop: makeLayout(gridSpan.desktop, idx),
+    };
+
     return {
       ...b,
       ctaMode: b.ctaMode || "button",
+      showButton: b.showButton !== false,
+      buttonColor: expandShortHex(b.buttonColor) || b.buttonColor,
       borderRadius: typeof b.borderRadius === "number" ? b.borderRadius : 12,
       shadow: b.shadow || { intensity: 12, direction: "bottom-right" },
       background,
+      gridSpan,
+      alignH,
+      alignV,
+      layout,
       modalStyle: b.modalStyle
         ? {
             ...b.modalStyle,
@@ -179,9 +287,164 @@ function sanitizeConfig(data: SiteConfig): SiteConfig {
         : b.modalStyle,
     } as Box;
   });
+
+  // Footer migrations and defaults
+  const footer = { ...(data.footer || ({} as any)) } as FooterConfig;
+
+  // Headings default
+  if (!footer.headings) {
+    footer.headings = {
+      about: { title: "About", enabled: true },
+      quick: { title: "Quick Links", enabled: true },
+      contact: { title: "Contact", enabled: true },
+    };
+  } else {
+    footer.headings = {
+      about: {
+        title: footer.headings.about?.title || "About",
+        enabled: footer.headings.about?.enabled !== false,
+      },
+      quick: {
+        title: footer.headings.quick?.title || "Quick Links",
+        enabled: footer.headings.quick?.enabled !== false,
+      },
+      contact: {
+        title: footer.headings.contact?.title || "Contact",
+        enabled: footer.headings.contact?.enabled !== false,
+      },
+    };
+  }
+
+  // Colors default
+  footer.colors = {
+    textColor: fix(footer.colors?.textColor) || "#ffffff",
+    linkColor: fix(footer.colors?.linkColor) || "#ffffff",
+    iconColor: fix(footer.colors?.iconColor) || "#ffffff",
+  };
+
+  // Links by column migration
+  if (!footer.linksByColumn) {
+    const legacy = footer.links || [];
+    footer.linksByColumn = {
+      about: [],
+      quick: legacy.map((l) => ({ text: l.label, url: l.href, enabled: true })),
+      contact: [],
+    };
+  } else {
+    const normalize = (items?: FooterLinkItem[]) =>
+      (items || []).map((it) => ({
+        text: it.text || (it as any).label || "",
+        url: it.url || (it as any).href || "#",
+        enabled: it.enabled !== false,
+      }));
+    footer.linksByColumn = {
+      about: normalize(footer.linksByColumn.about),
+      quick: normalize(footer.linksByColumn.quick),
+      contact: normalize(footer.linksByColumn.contact),
+    };
+  }
+
+  // Social icons migration
+  if (!footer.socialIcons) {
+    const platforms: FooterSocialItem["platform"][] = [
+      "facebook",
+      "twitter",
+      "instagram",
+      "linkedin",
+      "youtube",
+      "github",
+    ];
+    const orderList =
+      footer.socialOrder && footer.socialOrder.length > 0
+        ? footer.socialOrder
+        : platforms;
+    const map = footer.socials || {};
+    footer.socialIcons = orderList.map((p, idx) => ({
+      platform: p,
+      url: (map as any)[p] || "",
+      icon: p,
+      order: idx,
+      enabled: Boolean((map as any)[p]),
+    }));
+  } else {
+    footer.socialIcons = (footer.socialIcons || [])
+      .map((s, idx) => ({
+        platform: s.platform || s.icon || "",
+        url: s.url || "",
+        icon: s.icon || s.platform || "",
+        order: typeof s.order === "number" ? s.order : idx,
+        enabled: s.enabled !== false && Boolean(s.url),
+      }))
+      .sort((a, b) => a.order - b.order);
+  }
+
+  const nextFooter: FooterConfig = {
+    ...footer,
+  };
+
+  // Slider defaults
+  const slider = (data.slider || {
+    widthPercent: 100,
+    height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 },
+  }) as SiteConfig["slider"];
+  const sliderFixed = {
+    widthPercent:
+      typeof slider?.widthPercent === "number"
+        ? Math.min(100, Math.max(50, Math.round(slider.widthPercent)))
+        : 100,
+    height: {
+      unit: slider?.height?.unit === "vh" ? "vh" : "px",
+      mobile:
+        typeof slider?.height?.mobile === "number"
+          ? Math.max(100, slider.height.mobile)
+          : 250,
+      tablet:
+        typeof slider?.height?.tablet === "number"
+          ? Math.max(120, slider.height.tablet)
+          : 320,
+      desktop:
+        typeof slider?.height?.desktop === "number"
+          ? Math.max(140, slider.height.desktop)
+          : 400,
+    },
+  } as SliderConfig;
+
+  // boxesGrid defaults
+  const boxesGrid = (data.boxesGrid || {
+    columns: { mobile: 1, tablet: 2, desktop: 4 },
+    columnWidth: { mobile: 0, tablet: 0, desktop: 0 },
+    gap: { mobile: 16, tablet: 20, desktop: 24 },
+    columnColor: "rgba(14,165,233,0.08)",
+    showColumnColor: false,
+  }) as BoxesGridConfig;
+  const clamp = (v: number, min: number, max: number) =>
+    Math.min(max, Math.max(min, Math.round(v)));
+  const boxesGridFixed: BoxesGridConfig = {
+    columns: {
+      mobile: clamp(boxesGrid.columns.mobile || 1, 1, 12),
+      tablet: clamp(boxesGrid.columns.tablet || 2, 1, 12),
+      desktop: clamp(boxesGrid.columns.desktop || 4, 1, 12),
+    },
+    columnWidth: {
+      mobile: Math.max(0, Math.round(boxesGrid.columnWidth?.mobile || 0)),
+      tablet: Math.max(0, Math.round(boxesGrid.columnWidth?.tablet || 0)),
+      desktop: Math.max(0, Math.round(boxesGrid.columnWidth?.desktop || 0)),
+    },
+    gap: {
+      mobile: Math.max(0, Math.round(boxesGrid.gap?.mobile || 16)),
+      tablet: Math.max(0, Math.round(boxesGrid.gap?.tablet || 20)),
+      desktop: Math.max(0, Math.round(boxesGrid.gap?.desktop || 24)),
+    },
+    columnColor: boxesGrid.columnColor || "rgba(14,165,233,0.08)",
+    showColumnColor: !!boxesGrid.showColumnColor,
+  };
+
   return {
     ...data,
     boxes,
+    footer: nextFooter,
+    slider: sliderFixed,
+    boxesGrid: boxesGridFixed,
     theme: {
       ...theme,
       brand: fix(theme.brand),
@@ -386,9 +649,21 @@ const DEFAULTS: SiteConfig = {
   ],
   footer: {
     text: `© ${new Date().getFullYear()} NovaTech. All rights reserved.`,
+    description:
+      "We craft reliable web platforms and modern digital experiences with a focus on performance and usability.",
+    links: [
+      { label: "About", href: "#" },
+      { label: "Services", href: "#" },
+      { label: "Contact", href: "#contact" },
+    ],
     socials: {},
     socialOrder: ["facebook", "twitter", "instagram", "linkedin"],
     background: { kind: "color", color: "#0a0a0a" },
+    // new fields will be filled by sanitizeConfig
+  },
+  slider: {
+    widthPercent: 100,
+    height: { unit: "px", mobile: 250, tablet: 320, desktop: 400 },
   },
   theme: {
     brand: "#0ea5e9",
@@ -397,6 +672,13 @@ const DEFAULTS: SiteConfig = {
     logosSectionBg: "transparent",
     contactSectionBg: "#1a1a1a",
     boxDefaultBg: "#f6f6f6",
+  },
+  boxesGrid: {
+    columns: { mobile: 1, tablet: 2, desktop: 4 },
+    columnWidth: { mobile: 0, tablet: 0, desktop: 0 },
+    gap: { mobile: 16, tablet: 20, desktop: 24 },
+    columnColor: "rgba(14,165,233,0.08)",
+    showColumnColor: false,
   },
   settings: {
     sectionPadding: { hero: 24, boxes: 24, logos: 16, contact: 32 },
@@ -410,11 +692,11 @@ const KEY = "site-config-v1";
 function load(): SiteConfig {
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return DEFAULTS;
+    if (!raw) return sanitizeConfig(DEFAULTS);
     const parsed = JSON.parse(raw) as SiteConfig;
     return sanitizeConfig({ ...DEFAULTS, ...parsed } as SiteConfig);
   } catch {
-    return DEFAULTS;
+    return sanitizeConfig(DEFAULTS);
   }
 }
 

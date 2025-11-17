@@ -28,11 +28,12 @@ export function AdminCard({
   children,
   className,
   padding = "default",
+  ...props
 }: {
   children: React.ReactNode;
   className?: string;
   padding?: "none" | "small" | "default" | "large";
-}) {
+} & React.HTMLAttributes<HTMLDivElement>) {
   const paddingClasses = {
     none: "",
     small: "p-4",
@@ -47,6 +48,7 @@ export function AdminCard({
         paddingClasses[padding],
         className,
       )}
+      {...props}
     >
       {children}
     </div>

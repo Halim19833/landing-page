@@ -29,7 +29,10 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import { SiteConfigProvider } from "@/state/site-config";
 
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; message?: string }>{
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; message?: string }
+> {
   constructor(props: any) {
     super(props);
     this.state = { hasError: false };
@@ -46,8 +49,15 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
         <div className="min-h-screen flex items-center justify-center p-6">
           <div className="max-w-md w-full bg-white border rounded-lg p-6 text-center">
             <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-            <p className="text-sm text-neutral-600 mb-4">{this.state.message || "An unexpected error occurred."}</p>
-            <button onClick={() => window.location.reload()} className="px-4 py-2 rounded bg-neutral-900 text-white">Reload</button>
+            <p className="text-sm text-neutral-600 mb-4">
+              {this.state.message || "An unexpected error occurred."}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 rounded bg-neutral-900 text-white"
+            >
+              Reload
+            </button>
           </div>
         </div>
       );
@@ -74,9 +84,7 @@ const router = createBrowserRouter([
     ],
   },
   { path: "*", element: <NotFound /> },
-], {
-  future: { v7_startTransition: true, v7_relativeSplatPath: true },
-});
+]);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -89,7 +97,7 @@ const App = () => (
             <div className="min-h-screen flex flex-col" id="app-root-bg">
               <SiteHeader />
               <main className="flex-1">
-                <RouterProvider router={router} future={{ v7_startTransition: true, v7_relativeSplatPath: true }} />
+                <RouterProvider router={router} />
               </main>
               <SiteFooter />
             </div>
@@ -100,4 +108,11 @@ const App = () => (
   </QueryClientProvider>
 );
 
-createRoot(document.getElementById("root")!).render(<App />);
+const container = document.getElementById("root")!;
+// Reuse existing root across HMR to avoid double createRoot and DOM detach errors
+// Store on window to persist between module reloads
+const w = window as any;
+if (!w.__fusionRoot) {
+  w.__fusionRoot = createRoot(container);
+}
+w.__fusionRoot.render(<App />);

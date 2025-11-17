@@ -1,4 +1,4 @@
-import type React from "react";
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -77,11 +77,17 @@ function Box({ id }: BoxProps) {
             <div className="mt-3 flex items-center gap-2">
               {(box.ctaMode === "button" ||
                 box.ctaMode === "both" ||
-                !box.ctaMode) && (
-                <span className="inline-flex items-center px-3 py-2 text-sm rounded-md bg-brand-600 text-white shadow group-hover:bg-brand-500 transition-colors">
-                  {box.buttonLabel || "Read More"}
-                </span>
-              )}
+                !box.ctaMode) &&
+                box.showButton !== false && (
+                  <span
+                    className="inline-flex items-center px-3 py-2 text-sm rounded-md text-white shadow transition-colors"
+                    style={{
+                      backgroundColor: box.buttonColor || state.theme.brand,
+                    }}
+                  >
+                    {box.buttonLabel || "Read More"}
+                  </span>
+                )}
               {(box.ctaMode === "icon" || box.ctaMode === "both") && (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -144,8 +150,58 @@ function Box({ id }: BoxProps) {
 
 export default function Boxes() {
   const { state } = useSiteConfig();
-  const visible = state.boxes.filter((b) => !b.hidden);
   const pad = state.settings?.sectionPadding?.boxes ?? 24;
+
+  const cols = state.boxesGrid?.columns || { mobile: 1, tablet: 2, desktop: 4 };
+  const gap = state.boxesGrid?.gap || { mobile: 16, tablet: 20, desktop: 24 };
+  const cwidth = state.boxesGrid?.columnWidth || {
+    mobile: 0,
+    tablet: 0,
+    desktop: 0,
+  };
+  const colColor = state.boxesGrid?.columnColor || "transparent";
+  const showCols = !!state.boxesGrid?.showColumnColor;
+
+  const gridTemplate = (count: number, widthPx: number) =>
+    widthPx > 0
+      ? `repeat(${count}, minmax(${widthPx}px, 1fr))`
+      : `repeat(${count}, minmax(0, 1fr))`;
+
+  const bgCols = showCols
+    ? {
+        backgroundImage: `repeating-linear-gradient(90deg, ${colColor}, ${colColor} 1px, transparent 1px, transparent calc(100% / ${cols.mobile}))`,
+      }
+    : {};
+
+  const alignTo = (h?: string, v?: string): React.CSSProperties => ({
+    justifySelf: h === "center" ? "center" : h === "right" ? "end" : "start",
+    alignSelf: v === "center" ? "center" : v === "bottom" ? "end" : "start",
+  });
+
+  const [bp, setBp] = React.useState<"mobile" | "tablet" | "desktop">(() =>
+    typeof window !== "undefined" && window.innerWidth >= 1024
+      ? "desktop"
+      : typeof window !== "undefined" && window.innerWidth >= 640
+        ? "tablet"
+        : "mobile",
+  );
+  React.useEffect(() => {
+    const onResize = () => {
+      const w = window.innerWidth;
+      setBp(w >= 1024 ? "desktop" : w >= 640 ? "tablet" : "mobile");
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const visible = state.boxes
+    .filter((b) => !b.hidden)
+    .slice()
+    .sort((a, b) => {
+      const la = (a.layout as any)?.[bp] || { y: 0, x: 0 };
+      const lb = (b.layout as any)?.[bp] || { y: 0, x: 0 };
+      return la.y - lb.y || la.x - lb.x;
+    });
 
   return (
     <section
@@ -156,21 +212,34 @@ export default function Boxes() {
         background: state.theme.boxesSectionBg,
       }}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {visible.map((b) => (
-          <div
-            key={b.id}
-            className={cn(
-              b.size === "large"
-                ? "sm:col-span-2 lg:col-span-4"
-                : b.size === "medium"
-                  ? "sm:col-span-1 lg:col-span-2"
-                  : "sm:col-span-1 lg:col-span-1",
-            )}
-          >
-            <Box id={b.id} />
-          </div>
-        ))}
+      <div
+        className="grid boxes-grid"
+        style={{
+          gridTemplateColumns: gridTemplate(cols.mobile, cwidth.mobile),
+          gap: `${gap.mobile}px`,
+          ...(bgCols as any),
+        }}
+      >
+        <style>{`
+          @media (min-width: 640px){
+            .boxes-grid{ grid-template-columns: ${gridTemplate(cols.tablet, cwidth.tablet)}; gap: ${gap.tablet}px; ${showCols ? `background-image: repeating-linear-gradient(90deg, ${colColor}, ${colColor} 1px, transparent 1px, transparent calc(100% / ${cols.tablet}));` : ""} }
+          }
+          @media (min-width: 1024px){
+            .boxes-grid{ grid-template-columns: ${gridTemplate(cols.desktop, cwidth.desktop)}; gap: ${gap.desktop}px; ${showCols ? `background-image: repeating-linear-gradient(90deg, ${colColor}, ${colColor} 1px, transparent 1px, transparent calc(100% / ${cols.desktop}));` : ""} }
+          }
+        `}</style>
+        {visible.map((b) => {
+          const span = (b.gridSpan?.[bp] as number) || 1;
+          const style: React.CSSProperties = {
+            gridColumn: `span ${span} / span ${span}`,
+            ...alignTo(b.alignH, b.alignV),
+          };
+          return (
+            <div key={b.id} style={style}>
+              <Box id={b.id} />
+            </div>
+          );
+        })}
       </div>
     </section>
   );

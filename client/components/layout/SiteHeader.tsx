@@ -10,21 +10,57 @@ export default function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   useEffect(() => {
     let stop = false;
-    const load = async () => {
-      try {
-        const res = await fetch("/api/messages");
-        const data = await res.json();
-        if (!stop)
+    let backoff = 5000; // start at 5s
+
+    const xhrJson = (url: string, timeout = 6000): Promise<any | null> =>
+      new Promise((resolve) => {
+        try {
+          const xhr = new XMLHttpRequest();
+          xhr.open("GET", url, true);
+          xhr.responseType = "json";
+          xhr.timeout = timeout;
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
+            else resolve(null);
+          };
+          xhr.ontimeout = () => resolve(null);
+          xhr.onerror = () => resolve(null);
+          xhr.send();
+        } catch {
+          resolve(null);
+        }
+      });
+
+    const tick = async () => {
+      if (stop) return;
+      if (document.visibilityState !== "visible") {
+        setTimeout(tick, backoff);
+        return;
+      }
+      if (
+        typeof navigator !== "undefined" &&
+        navigator &&
+        (navigator as any).onLine === false
+      ) {
+        setTimeout(tick, backoff);
+        return;
+      }
+      const data = await xhrJson("/api/messages", 6000);
+      if (!stop) {
+        if (data && Array.isArray(data.items)) {
           setCount((data.items || []).filter((m: any) => !m.read).length);
-      } catch {
-        if (!stop) setCount(0);
+          backoff = 5000; // reset on success
+        } else {
+          setCount(0);
+          backoff = Math.min(backoff * 2, 60000); // exponential backoff up to 60s
+        }
+        setTimeout(tick, backoff);
       }
     };
-    load();
-    const id = setInterval(load, 5000);
+
+    tick();
     return () => {
       stop = true;
-      clearInterval(id);
     };
   }, []);
   useEffect(() => {

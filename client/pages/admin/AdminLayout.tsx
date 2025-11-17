@@ -6,8 +6,6 @@ import {
   Box,
   Building2,
   MessageSquare,
-  Header,
-  Footer,
   Palette,
   Settings,
   Menu,
@@ -101,9 +99,9 @@ export default function AdminLayout() {
         },
         {
           to: "/admin/boxes",
-          label: "Content Boxes",
+          label: "Grid Editor",
           icon: <Box className="h-5 w-5" />,
-          description: "Feature boxes & cards",
+          description: "Manage cards & layout",
         },
         {
           to: "/admin/logos",
@@ -125,13 +123,13 @@ export default function AdminLayout() {
         {
           to: "/admin/header",
           label: "Header",
-          icon: <Header className="h-5 w-5" />,
+          icon: <Menu className="h-5 w-5" />,
           description: "Navigation & branding",
         },
         {
           to: "/admin/footer",
           label: "Footer",
-          icon: <Footer className="h-5 w-5" />,
+          icon: <Home className="h-5 w-5" />,
           description: "Links & social media",
         },
         {
@@ -166,7 +164,7 @@ export default function AdminLayout() {
         fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-200 shadow-sm
         transform transition-transform duration-300 ease-in-out lg:translate-x-0
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:static lg:inset-auto lg:z-auto lg:shadow-none
+        lg:sticky lg:top-0 lg:self-start lg:h-screen lg:z-auto lg:shadow-none
       `}
       >
         <div className="flex flex-col h-full">
@@ -231,7 +229,7 @@ export default function AdminLayout() {
         </div>
 
         {/* Content area */}
-        <div className="p-6 lg:p-8">
+        <div className="p-6 lg:p-8 max-w-[1200px] mx-auto">
           <Outlet />
         </div>
       </main>
